@@ -64,6 +64,11 @@ export default function SummaryStep({ assessment, monitorStats, onRestart }: Sum
               Des signes de somnolence ont ete detectes pendant la surveillance. Faites une pause
               des que possible.
             </p>
+          ) : monitorStats.noFaceEvents > 0 ? (
+            <p className="rounded-lg border border-amber-700 bg-amber-950/30 p-3 text-sm text-amber-300">
+              Le visage du conducteur n&apos;a pas ete visible par la camera a plusieurs reprises.
+              Verifiez le positionnement de la camera pour une surveillance fiable.
+            </p>
           ) : (
             <p className="rounded-lg border border-emerald-700 bg-emerald-950/30 p-3 text-sm text-emerald-300">
               Aucun signe significatif de somnolence detecte pendant la surveillance.
