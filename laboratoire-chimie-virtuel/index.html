@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laboratoire de Chimie Virtuel — Hydratation des alcènes</title>
+<style>
+  :root{
+    --teal:#0f766e;
+    --teal-light:#14b8a6;
+    --amber:#f59e0b;
+    --danger:#dc2626;
+    --bench:#e7e0d3;
+    --wall:#eef3f5;
+    --panel:#ffffff;
+    --ink:#1f2937;
+    --muted:#6b7280;
+    --water:rgba(148,197,222,0.55);
+    --acidmix:rgba(214,206,120,0.6);
+    --ethanol:rgba(237,214,140,0.75);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:linear-gradient(180deg,var(--wall) 0%,#dfe9ec 100%);
+    color:var(--ink);
+    min-height:100vh;
+  }
+
+  /* ---------- HEADER ---------- */
+  header.app-header{
+    background:linear-gradient(90deg,var(--teal) 0%,var(--teal-light) 100%);
+    color:#fff;
+    padding:18px 24px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.15);
+  }
+  header.app-header svg{flex-shrink:0;}
+  header .titles h1{margin:0;font-size:1.35rem;}
+  header .titles p{margin:2px 0 0;font-size:0.85rem;opacity:0.9;}
+  .safety-banner{
+    background:#fff7ed;
+    border-bottom:2px solid var(--amber);
+    color:#7c4a03;
+    font-size:0.85rem;
+    padding:8px 24px;
+    text-align:center;
+  }
+
+  /* ---------- LAYOUT ---------- */
+  .lab-layout{
+    max-width:1400px;
+    margin:20px auto;
+    padding:0 16px 40px;
+    display:grid;
+    grid-template-columns:230px 1fr 320px;
+    gap:18px;
+    align-items:start;
+  }
+  @media (max-width:1000px){
+    .lab-layout{grid-template-columns:1fr;}
+  }
+
+  .panel{
+    background:var(--panel);
+    border-radius:12px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.08);
+    padding:16px;
+  }
+  .panel h2{
+    margin:0 0 12px;
+    font-size:1rem;
+    color:var(--teal);
+    border-bottom:2px solid #e5e7eb;
+    padding-bottom:8px;
+  }
+
+  /* ---------- REAGENT SHELF ---------- */
+  .bottle{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px;
+    border-radius:10px;
+    border:1px solid #e5e7eb;
+    margin-bottom:10px;
+    cursor:grab;
+    background:#fafafa;
+    transition:transform .15s, box-shadow .15s;
+    user-select:none;
+  }
+  .bottle:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,0.12);}
+  .bottle.disabled{opacity:0.4;cursor:not-allowed;pointer-events:none;}
+  .bottle .icon{width:34px;height:54px;flex-shrink:0;position:relative;}
+  .bottle .label{font-size:0.8rem;line-height:1.3;}
+  .bottle .label strong{display:block;font-size:0.85rem;}
+  .bottle .label span.formula{color:var(--muted);font-size:0.75rem;}
+
+  /* generic bottle shape */
+  .glass-bottle{
+    position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+    width:22px;height:38px;border-radius:4px 4px 8px 8px;
+    border:2px solid #94a3b8;background:rgba(255,255,255,0.5);
+  }
+  .glass-bottle::before{ /* neck */
+    content:"";position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+    width:10px;height:12px;border:2px solid #94a3b8;border-bottom:none;background:#fff;
+  }
+  .glass-bottle .cap{
+    position:absolute;top:-18px;left:50%;transform:translateX(-50%);
+    width:14px;height:8px;border-radius:2px;
+  }
+  .glass-bottle .fill{
+    position:absolute;bottom:0;left:0;right:0;border-radius:0 0 6px 6px;
+  }
+  .cap-blue{background:#2563eb;}
+  .cap-amber{background:#b45309;}
+  .fill-water{height:60%;background:var(--water);}
+  .fill-acid{height:70%;background:#e6c65c;}
+  .hazard{
+    position:absolute;top:-4px;right:-8px;
+    width:14px;height:14px;background:var(--danger);color:#fff;
+    border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;
+    font-weight:bold;
+  }
+
+  /* gas cylinder icon */
+  .cylinder{
+    position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+    width:20px;height:44px;border-radius:6px 6px 3px 3px;
+    background:linear-gradient(180deg,#cbd5e1,#94a3b8);
+    border:1px solid #64748b;
+  }
+  .cylinder::before{
+    content:"";position:absolute;top:-8px;left:50%;transform:translateX(-50%);
+    width:8px;height:8px;border-radius:2px;background:#475569;
+  }
+  .cylinder .stripe{
+    position:absolute;top:6px;left:0;right:0;height:6px;background:#22c55e;
+  }
+
+  /* ---------- WORKBENCH ---------- */
+  .workbench{
+    position:relative;
+    min-height:520px;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.4), transparent 60%),
+      repeating-linear-gradient(90deg, #d8cdb6 0 2px, var(--bench) 2px 60px);
+    border-radius:14px;
+    border:1px solid #cbbf9d;
+    padding:24px 12px 12px;
+    overflow:hidden;
+  }
+  .workbench-title{
+    position:absolute;top:10px;left:16px;font-size:0.78rem;color:#6b5f43;font-weight:600;
+    letter-spacing:.03em;text-transform:uppercase;
+  }
+
+  .decor-row{
+    position:absolute;top:14px;right:16px;display:flex;gap:14px;opacity:0.85;
+  }
+  .goggles{width:34px;height:20px;position:relative;}
+  .goggles::before,.goggles::after{
+    content:"";position:absolute;top:0;width:14px;height:16px;border-radius:50%;
+    border:3px solid #334155;background:rgba(191,219,254,0.5);
+  }
+  .goggles::before{left:0;}
+  .goggles::after{right:0;}
+  .extinguisher{width:14px;height:30px;background:#dc2626;border-radius:5px 5px 3px 3px;position:relative;}
+  .extinguisher::before{content:"";position:absolute;top:-6px;left:3px;width:8px;height:6px;background:#111;border-radius:2px;}
+
+  /* stand + clamp holding the flask */
+  .stand{
+    position:absolute;left:50%;bottom:70px;transform:translateX(-90px);
+    width:8px;height:220px;background:#6b7280;border-radius:2px;
+  }
+  .stand-base{
+    position:absolute;left:50%;bottom:60px;transform:translateX(-118px);
+    width:64px;height:10px;background:#4b5563;border-radius:3px;
+  }
+  .clamp{
+    position:absolute;left:50%;bottom:230px;transform:translateX(-90px);
+    width:70px;height:10px;background:#9ca3af;border-radius:3px;
+  }
+
+  .flask-wrap{
+    position:relative;
+    width:220px;height:300px;
+    margin:40px auto 0;
+  }
+  .flask-glass{fill:rgba(255,255,255,0.25);stroke:#94a3b8;stroke-width:3;}
+  #liquidRect{transition:height .9s ease, y .9s ease, fill 1.4s ease, opacity .6s ease;}
+  .bubble-layer{
+    position:absolute;inset:0;pointer-events:none;
+  }
+  .bubble{
+    position:absolute;
+    bottom:60px;
+    width:6px;height:6px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.85);
+    animation:rise 1.6s ease-in forwards;
+  }
+  @keyframes rise{
+    0%{transform:translateY(0) scale(0.6);opacity:0.9;}
+    80%{opacity:0.7;}
+    100%{transform:translateY(-190px) scale(1.1);opacity:0;}
+  }
+  .vapor{
+    position:absolute;top:20px;left:50%;
+    width:10px;height:10px;border-radius:50%;
+    background:rgba(255,255,255,0.7);
+    filter:blur(2px);
+    animation:vaporRise 2.2s ease-out forwards;
+  }
+  @keyframes vaporRise{
+    0%{transform:translate(-50%,0) scale(0.6);opacity:0.8;}
+    100%{transform:translate(-50%,-70px) scale(2.2);opacity:0;}
+  }
+
+  .flask-label{
+    position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
+    background:#111827cc;color:#fff;padding:4px 10px;border-radius:6px;
+    font-size:0.78rem;white-space:nowrap;
+  }
+  .flask-label.success{background:#166534cc;}
+
+  /* burner */
+  .burner-wrap{
+    position:relative;width:80px;margin:0 auto;
+    display:flex;flex-direction:column;align-items:center;
+  }
+  .burner-body{
+    width:36px;height:34px;background:linear-gradient(180deg,#9ca3af,#6b7280);
+    border-radius:4px 4px 2px 2px;position:relative;z-index:2;
+  }
+  .burner-base{
+    width:70px;height:10px;background:#4b5563;border-radius:4px;margin-top:-2px;z-index:2;
+  }
+  .flame{
+    position:absolute;bottom:30px;left:50%;transform:translateX(-50%) scale(0);
+    width:22px;height:36px;
+    background:radial-gradient(circle at 50% 80%, #fff7c2 0%, #fbbf24 35%, #f97316 65%, #2563eb 100%);
+    clip-path:polygon(50% 0%, 80% 40%, 65% 45%, 85% 70%, 50% 100%, 15% 70%, 35% 45%, 20% 40%);
+    transition:transform .3s ease;
+    filter:drop-shadow(0 0 8px #f59e0b);
+  }
+  .flame.lit{
+    transform:translateX(-50%) scale(1);
+    animation:flicker 0.35s infinite alternate;
+  }
+  @keyframes flicker{
+    0%{transform:translateX(-50%) scale(1) skewX(0deg);}
+    100%{transform:translateX(-50%) scale(1.08) skewX(3deg);}
+  }
+
+  .progress-wrap{
+    max-width:220px;margin:10px auto 0;
+  }
+  .progress-bar{
+    height:8px;background:#e5e7eb;border-radius:6px;overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;width:0%;background:linear-gradient(90deg,var(--amber),#f97316);
+    transition:width .3s linear;
+  }
+  .progress-text{font-size:0.72rem;color:var(--muted);text-align:center;margin-top:4px;}
+
+  /* rack decor */
+  .rack{
+    position:absolute;bottom:16px;left:16px;display:flex;gap:6px;align-items:flex-end;
+  }
+  .tube{
+    width:10px;height:44px;border:2px solid #94a3b8;border-radius:0 0 5px 5px;
+    background:rgba(255,255,255,0.3);position:relative;
+  }
+  .tube i{position:absolute;bottom:0;left:0;right:0;border-radius:0 0 3px 3px;}
+  .tube.t1 i{height:40%;background:#a7f3d0;}
+  .tube.t2 i{height:55%;background:#fbcfe8;}
+  .tube.t3 i{height:30%;background:#bfdbfe;}
+
+  /* ---------- CONTROL PANEL ---------- */
+  .checklist{list-style:none;margin:0;padding:0;font-size:0.85rem;}
+  .checklist li{
+    display:flex;align-items:flex-start;gap:8px;padding:7px 0;
+    border-bottom:1px dashed #e5e7eb;color:var(--muted);
+  }
+  .checklist li:last-child{border-bottom:none;}
+  .checklist li .dot{
+    width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;flex-shrink:0;margin-top:1px;
+    display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;
+  }
+  .checklist li.done{color:var(--ink);font-weight:600;}
+  .checklist li.done .dot{background:var(--teal);border-color:var(--teal);}
+  .checklist li.done .dot::after{content:"✓";}
+
+  .equation{
+    display:flex;flex-wrap:wrap;align-items:center;gap:6px;
+    font-size:0.95rem;background:#f8fafc;border-radius:8px;padding:12px;margin-bottom:14px;
+    transition:box-shadow .4s, background .4s;
+  }
+  .equation.highlight{background:#f0fdf4;box-shadow:0 0 0 2px #16a34a inset;}
+  .equation .arrow{font-weight:bold;color:var(--teal);position:relative;padding:0 4px;}
+  .equation small{display:block;font-size:0.6rem;color:var(--muted);text-align:center;position:absolute;top:-14px;left:0;right:0;}
+  .equation .arrow{margin-top:14px;}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:9px 14px;border:none;border-radius:8px;font-size:0.85rem;font-weight:600;
+    cursor:pointer;transition:filter .15s, transform .1s;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn:disabled{opacity:0.45;cursor:not-allowed;}
+  .btn-heat{background:linear-gradient(90deg,#f97316,#dc2626);color:#fff;}
+  .btn-reset{background:#e5e7eb;color:#374151;}
+  .btn-row{display:flex;gap:10px;margin:14px 0;flex-wrap:wrap;}
+
+  .log{
+    background:#0f172a;color:#a7f3d0;font-family:"Consolas",monospace;
+    font-size:0.75rem;border-radius:8px;padding:10px;height:150px;overflow-y:auto;
+    margin-top:8px;
+  }
+  .log p{margin:0 0 4px;}
+  .log p.warn{color:#fca5a5;}
+  .log p.ok{color:#86efac;font-weight:bold;}
+
+  .note{
+    font-size:0.75rem;color:var(--muted);background:#f8fafc;border-left:3px solid var(--teal-light);
+    padding:8px 10px;border-radius:6px;margin-top:12px;
+  }
+
+  footer{
+    text-align:center;font-size:0.75rem;color:var(--muted);padding:20px;
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+    <path d="M16 4h8v9l9 17c1.5 3-1 6-4.5 6h-17c-3.5 0-6-3-4.5-6l9-17V4z" fill="#ffffff33" stroke="#fff" stroke-width="2"/>
+    <path d="M13 26h14" stroke="#fff" stroke-width="2"/>
+  </svg>
+  <div class="titles">
+    <h1>Laboratoire de Chimie Virtuel</h1>
+    <p>Chimie organique — Terminale · Hydratation des alcènes</p>
+  </div>
+</header>
+<div class="safety-banner">⚠️ Équipements de protection obligatoires (lunettes, gants) — même en version virtuelle, prends les bonnes habitudes du laboratoire réel !</div>
+
+<div class="lab-layout">
+
+  <!-- REACTIFS -->
+  <div class="panel">
+    <h2>🧪 Réactifs &amp; matériel</h2>
+
+    <div class="bottle" id="bottle-water" draggable="true" ondragstart="onDragStart(event,'water')" onclick="addReagent('water')" title="Verser l'eau distillée dans le ballon">
+      <div class="icon">
+        <div class="glass-bottle"><span class="cap cap-blue"></span><span class="fill fill-water"></span></div>
+      </div>
+      <div class="label"><strong>Eau distillée</strong><span class="formula">H₂O</span></div>
+    </div>
+
+    <div class="bottle" id="bottle-acid" draggable="true" ondragstart="onDragStart(event,'acid')" onclick="addReagent('acid')" title="Ajouter le catalyseur acide sulfurique">
+      <div class="icon">
+        <div class="glass-bottle"><span class="cap cap-amber"></span><span class="fill fill-acid"></span><span class="hazard">!</span></div>
+      </div>
+      <div class="label"><strong>Ac. sulfurique</strong><span class="formula">H₂SO₄ (catalyseur)</span></div>
+    </div>
+
+    <div class="bottle" id="bottle-alkene" draggable="true" ondragstart="onDragStart(event,'alkene')" onclick="addReagent('alkene')" title="Faire buller le gaz éthylène">
+      <div class="icon">
+        <div class="cylinder"><span class="stripe"></span></div>
+      </div>
+      <div class="label"><strong>Éthylène (gaz)</strong><span class="formula">CH₂=CH₂</span></div>
+    </div>
+
+    <div class="note">Glisse-dépose chaque flacon sur le ballon, ou clique dessus. L'ordre est libre, mais réfléchis au protocole réel avant de chauffer !</div>
+  </div>
+
+  <!-- PAILLASSE -->
+  <div class="panel" style="padding:0;">
+    <div class="workbench" id="dropZoneWrap">
+      <div class="workbench-title">Paillasse — Poste n°1</div>
+      <div class="decor-row">
+        <div class="goggles" title="Lunettes de sécurité"></div>
+        <div class="extinguisher" title="Extincteur"></div>
+      </div>
+
+      <div class="rack">
+        <div class="tube t1"><i></i></div>
+        <div class="tube t2"><i></i></div>
+        <div class="tube t3"><i></i></div>
+      </div>
+
+      <div class="stand-base"></div>
+      <div class="stand"></div>
+      <div class="clamp"></div>
+
+      <div class="flask-wrap" id="flask" ondragover="event.preventDefault()" ondrop="onDrop(event)">
+        <svg viewBox="0 0 200 280" width="100%" height="100%">
+          <defs>
+            <clipPath id="flaskClip">
+              <path d="M80,10 L120,10 L120,90 L165,250 Q172,270 155,270 L45,270 Q28,270 35,250 L80,90 Z"/>
+            </clipPath>
+          </defs>
+          <g clip-path="url(#flaskClip)">
+            <rect id="liquidRect" x="0" y="270" width="200" height="0" fill="var(--water)"/>
+          </g>
+          <path class="flask-glass" d="M80,10 L120,10 L120,90 L165,250 Q172,270 155,270 L45,270 Q28,270 35,250 L80,90 Z"/>
+        </svg>
+        <div class="bubble-layer" id="bubbleLayer"></div>
+        <div class="flask-label" id="flaskLabel">Ballon vide</div>
+      </div>
+
+      <div class="burner-wrap">
+        <div class="flame" id="flame"></div>
+        <div class="burner-body"></div>
+        <div class="burner-base"></div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-text" id="progressText">En attente des réactifs…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROTOCOLE / CONTROLES -->
+  <div class="panel">
+    <h2>📋 Protocole</h2>
+    <ul class="checklist" id="checklist">
+      <li data-step="water"><span class="dot"></span> Verser l'eau distillée dans le ballon</li>
+      <li data-step="acid"><span class="dot"></span> Ajouter quelques gouttes d'acide sulfurique (catalyseur)</li>
+      <li data-step="alkene"><span class="dot"></span> Faire buller le gaz éthylène dans le mélange</li>
+      <li data-step="heat"><span class="dot"></span> Chauffer le mélange (Δ)</li>
+      <li data-step="done"><span class="dot"></span> Observer la formation de l'éthanol</li>
+    </ul>
+
+    <h2 style="margin-top:18px;">⚗️ Équation de la réaction</h2>
+    <div class="equation" id="equation">
+      <span>CH₂=CH₂</span><span>+</span><span>H₂O</span>
+      <span class="arrow">
+        <small>H₂SO₄, Δ</small>
+        &#10230;
+      </span>
+      <span id="productLabel">CH₃-CH₂-OH</span>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-heat" id="heatBtn" onclick="toggleHeat()" disabled>🔥 Chauffer</button>
+      <button class="btn btn-reset" onclick="resetLab()">↺ Réinitialiser</button>
+    </div>
+
+    <h2>🖊️ Journal d'observations</h2>
+    <div class="log" id="log"></div>
+
+    <div class="note" id="pedagoNote">
+      💡 <strong>À retenir :</strong> l'hydratation catalytique d'un alcène (ici l'éthylène) en présence d'acide sulfurique concentré donne un alcool — ici l'éthanol. C'est une addition sur la double liaison C=C.
+    </div>
+  </div>
+
+</div>
+
+<footer>Simulation pédagogique — usage en classe de chimie (lycée). Les couleurs et durées sont simplifiées à des fins d'apprentissage.</footer>
+
+<script>
+  const state = { water:false, acid:false, alkene:false, heating:false, done:false, progress:0 };
+  let heatInterval = null;
+
+  const liquidRect = document.getElementById('liquidRect');
+  const flaskLabel = document.getElementById('flaskLabel');
+  const bubbleLayer = document.getElementById('bubbleLayer');
+  const flame = document.getElementById('flame');
+  const heatBtn = document.getElementById('heatBtn');
+  const progressFill = document.getElementById('progressFill');
+  const progressText = document.getElementById('progressText');
+  const logEl = document.getElementById('log');
+  const equationEl = document.getElementById('equation');
+
+  function log(msg, type){
+    const p = document.createElement('p');
+    if(type) p.className = type;
+    p.textContent = '» ' + msg;
+    logEl.appendChild(p);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function onDragStart(e, id){
+    e.dataTransfer.setData('text/plain', id);
+  }
+  function onDrop(e){
+    e.preventDefault();
+    const id = e.dataTransfer.getData('text/plain');
+    if(id) addReagent(id);
+  }
+
+  function setLiquid(levelPercent, color){
+    const maxHeight = 250; // from y=270 up to y=20
+    const h = Math.min(levelPercent,100)/100 * maxHeight;
+    const y = 270 - h;
+    liquidRect.style.height = h + 'px';
+    liquidRect.style.y = y + 'px';
+    if(color) liquidRect.style.fill = color;
+  }
+
+  function spawnBubbles(count, colorClass){
+    for(let i=0;i<count;i++){
+      setTimeout(()=>{
+        const b = document.createElement('div');
+        b.className = 'bubble';
+        const leftPct = 38 + Math.random()*24;
+        b.style.left = leftPct + '%';
+        b.style.bottom = (20 + Math.random()*20) + '%';
+        bubbleLayer.appendChild(b);
+        setTimeout(()=>b.remove(), 1700);
+      }, i*120);
+    }
+  }
+
+  function spawnVapor(count){
+    for(let i=0;i<count;i++){
+      setTimeout(()=>{
+        const v = document.createElement('div');
+        v.className = 'vapor';
+        v.style.top = (8 + Math.random()*10) + '%';
+        bubbleLayer.appendChild(v);
+        setTimeout(()=>v.remove(), 2300);
+      }, i*260);
+    }
+  }
+
+  function updateChecklist(){
+    document.querySelectorAll('#checklist li').forEach(li=>{
+      const step = li.dataset.step;
+      let isDone = false;
+      if(step==='water') isDone = state.water;
+      if(step==='acid') isDone = state.acid;
+      if(step==='alkene') isDone = state.alkene;
+      if(step==='heat') isDone = state.heating || state.done;
+      if(step==='done') isDone = state.done;
+      li.classList.toggle('done', isDone);
+    });
+  }
+
+  function updateFlaskVisual(){
+    if(state.done){
+      flaskLabel.textContent = 'Éthanol obtenu — C₂H₅OH ✔';
+      flaskLabel.classList.add('success');
+      setLiquid(60, 'var(--ethanol)');
+      return;
+    }
+    let level = 0;
+    let color = 'var(--water)';
+    let labelParts = [];
+    if(state.water){ level += 35; labelParts.push('eau'); }
+    if(state.acid){ level += 6; color = 'var(--acidmix)'; labelParts.push('H₂SO₄'); }
+    if(state.alkene){ labelParts.push('C₂H₄ (barbote)'); }
+    setLiquid(level, color);
+    flaskLabel.textContent = labelParts.length ? 'Mélange : ' + labelParts.join(' + ') : 'Ballon vide';
+    flaskLabel.classList.remove('success');
+  }
+
+  function checkHeatAvailability(){
+    heatBtn.disabled = !(state.water && state.acid && state.alkene) || state.done;
+    if(!heatBtn.disabled){
+      progressText.textContent = 'Prêt à chauffer — clique sur "Chauffer" !';
+    }
+  }
+
+  function addReagent(id){
+    if(state.done){
+      log("La réaction est terminée, réinitialise le ballon pour recommencer.", 'warn');
+      return;
+    }
+    if(state[id]){
+      log("Ce réactif a déjà été ajouté.", 'warn');
+      return;
+    }
+    state[id] = true;
+
+    if(id === 'water'){
+      log("Ajout d'eau distillée (H₂O) dans le ballon.");
+    } else if(id === 'acid'){
+      log("Ajout de quelques gouttes d'acide sulfurique concentré — attention, réaction exothermique !", 'warn');
+    } else if(id === 'alkene'){
+      log("Barbotage du gaz éthylène (CH₂=CH₂) dans le mélange.");
+      spawnBubbles(10);
+    }
+
+    updateFlaskVisual();
+    updateChecklist();
+    checkHeatAvailability();
+
+    if(!state.water) progressText.textContent = "Ajoute l'eau distillée…";
+    else if(!state.acid) progressText.textContent = "Ajoute le catalyseur (H₂SO₄)…";
+    else if(!state.alkene) progressText.textContent = "Fais buller l'éthylène…";
+  }
+
+  function toggleHeat(){
+    if(state.heating || state.done) return;
+    state.heating = true;
+    heatBtn.disabled = true;
+    heatBtn.textContent = '🔥 Chauffage en cours…';
+    flame.classList.add('lit');
+    log("Chauffage du mélange réactionnel (catalyse acide à chaud)…");
+    updateChecklist();
+
+    state.progress = 0;
+    heatInterval = setInterval(()=>{
+      state.progress += 4;
+      progressFill.style.width = Math.min(state.progress,100) + '%';
+      progressText.textContent = "Avancement de la réaction : " + Math.min(state.progress,100) + "%";
+
+      if(state.progress % 16 === 0){
+        spawnBubbles(4);
+      }
+      if(state.progress >= 40 && state.progress < 44){
+        spawnVapor(6);
+        log("Formation progressive d'éthanol observée (odeur caractéristique).");
+      }
+
+      if(state.progress >= 100){
+        clearInterval(heatInterval);
+        finishReaction();
+      }
+    }, 160);
+  }
+
+  function finishReaction(){
+    state.heating = false;
+    state.done = true;
+    flame.classList.remove('lit');
+    heatBtn.textContent = '🔥 Chauffer';
+    progressText.textContent = "Réaction terminée !";
+    updateFlaskVisual();
+    updateChecklist();
+    equationEl.classList.add('highlight');
+    log("Réaction terminée : l'éthylène s'est hydraté en éthanol (CH₃-CH₂-OH).", 'ok');
+    log("Bilan : CH₂=CH₂ + H₂O  →(H₂SO₄, Δ)→  CH₃-CH₂-OH", 'ok');
+  }
+
+  function resetLab(){
+    clearInterval(heatInterval);
+    state.water = false; state.acid = false; state.alkene = false;
+    state.heating = false; state.done = false; state.progress = 0;
+    flame.classList.remove('lit');
+    heatBtn.disabled = true;
+    heatBtn.textContent = '🔥 Chauffer';
+    progressFill.style.width = '0%';
+    progressText.textContent = 'En attente des réactifs…';
+    equationEl.classList.remove('highlight');
+    bubbleLayer.innerHTML = '';
+    setLiquid(0, 'var(--water)');
+    flaskLabel.textContent = 'Ballon vide';
+    flaskLabel.classList.remove('success');
+    updateChecklist();
+    logEl.innerHTML = '';
+    log("Ballon rincé et prêt pour une nouvelle expérience.");
+  }
+
+  // init
+  updateChecklist();
+  log("Bienvenue au laboratoire virtuel. Ajoute les réactifs dans le ballon pour démarrer l'expérience.");
+</script>
+
+</body>
+</html>
