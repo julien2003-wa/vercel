@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Laboratoire de Chimie Virtuel — Hydratation des alcènes</title>
+<title>Laboratoire de Chimie Virtuel — Première C</title>
 <style>
   :root{
     --teal:#0f766e;
@@ -32,639 +32,1253 @@
   header.app-header{
     background:linear-gradient(90deg,var(--teal) 0%,var(--teal-light) 100%);
     color:#fff;
-    padding:18px 24px;
+    padding:14px 24px;
     display:flex;
     align-items:center;
     gap:14px;
     box-shadow:0 2px 8px rgba(0,0,0,0.15);
+    position:sticky;top:0;z-index:50;
   }
   header.app-header svg{flex-shrink:0;}
-  header .titles h1{margin:0;font-size:1.35rem;}
-  header .titles p{margin:2px 0 0;font-size:0.85rem;opacity:0.9;}
+  header .titles{flex:1;}
+  header .titles h1{margin:0;font-size:1.2rem;}
+  header .titles p{margin:2px 0 0;font-size:0.8rem;opacity:0.9;}
+  .home-btn{
+    background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.5);color:#fff;
+    padding:8px 14px;border-radius:8px;cursor:pointer;font-size:0.82rem;font-weight:600;
+    display:none;align-items:center;gap:6px;
+  }
+  .home-btn.show{display:inline-flex;}
   .safety-banner{
     background:#fff7ed;
     border-bottom:2px solid var(--amber);
     color:#7c4a03;
-    font-size:0.85rem;
-    padding:8px 24px;
+    font-size:0.82rem;
+    padding:7px 24px;
     text-align:center;
   }
 
-  /* ---------- LAYOUT ---------- */
-  .lab-layout{
-    max-width:1400px;
-    margin:20px auto;
-    padding:0 16px 40px;
-    display:grid;
-    grid-template-columns:230px 1fr 320px;
-    gap:18px;
-    align-items:start;
-  }
-  @media (max-width:1000px){
-    .lab-layout{grid-template-columns:1fr;}
-  }
+  main{max-width:1400px;margin:0 auto;padding:20px 16px 50px;}
+  .view{display:none;}
+  .view.active{display:block;}
 
-  .panel{
-    background:var(--panel);
-    border-radius:12px;
-    box-shadow:0 2px 10px rgba(0,0,0,0.08);
-    padding:16px;
+  /* ---------- HOME ---------- */
+  .hero{text-align:center;margin-bottom:22px;}
+  .hero h2{margin:0 0 6px;color:var(--teal);}
+  .hero p{margin:0;color:var(--muted);font-size:0.92rem;}
+  .chapter-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;
   }
-  .panel h2{
-    margin:0 0 12px;
-    font-size:1rem;
-    color:var(--teal);
-    border-bottom:2px solid #e5e7eb;
-    padding-bottom:8px;
-  }
-
-  /* ---------- REAGENT SHELF ---------- */
-  .bottle{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:10px;
-    border-radius:10px;
+  .chapter-card{
+    background:var(--panel);border-radius:14px;padding:18px;cursor:pointer;
+    box-shadow:0 2px 10px rgba(0,0,0,0.08);transition:transform .15s, box-shadow .15s;
     border:1px solid #e5e7eb;
-    margin-bottom:10px;
-    cursor:grab;
-    background:#fafafa;
-    transition:transform .15s, box-shadow .15s;
-    user-select:none;
+  }
+  .chapter-card:hover{transform:translateY(-3px);box-shadow:0 8px 18px rgba(0,0,0,0.12);}
+  .chapter-icon{font-size:2rem;margin-bottom:8px;}
+  .chapter-card h3{margin:0 0 6px;font-size:1rem;color:var(--ink);}
+  .chapter-card p{margin:0 0 10px;font-size:0.82rem;color:var(--muted);line-height:1.4;}
+  .tag{
+    display:inline-block;background:#ecfdf5;color:var(--teal);font-size:0.7rem;font-weight:700;
+    padding:3px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.03em;
+  }
+  .tag.quiz{background:#eff6ff;color:#2563eb;}
+
+  /* ---------- CHAPTER HEADER ---------- */
+  .chapter-header{display:flex;align-items:baseline;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+  .chapter-header h2{margin:0;color:var(--teal);font-size:1.25rem;}
+  .chapter-header .subtitle{color:var(--muted);font-size:0.85rem;}
+
+  /* ---------- SHARED PANEL LAYOUT ---------- */
+  .lab-layout{
+    display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start;
+  }
+  @media (max-width:960px){ .lab-layout{grid-template-columns:1fr;} }
+  .panel{
+    background:var(--panel);border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.08);padding:16px;
+  }
+  .panel h3.ptitle{margin:0 0 12px;font-size:0.95rem;color:var(--teal);border-bottom:2px solid #e5e7eb;padding-bottom:8px;}
+
+  .workbench{
+    position:relative;min-height:420px;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.4), transparent 60%),
+      repeating-linear-gradient(90deg, #d8cdb6 0 2px, var(--bench) 2px 60px);
+    border-radius:14px;border:1px solid #cbbf9d;padding:24px 16px 16px;overflow:hidden;
+  }
+  .workbench-title{
+    position:absolute;top:10px;left:16px;font-size:0.74rem;color:#6b5f43;font-weight:600;
+    letter-spacing:.03em;text-transform:uppercase;
+  }
+
+  /* reagent bottles (reused across chapters) */
+  .bottle{
+    display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;border:1px solid #e5e7eb;
+    margin-bottom:10px;cursor:pointer;background:#fafafa;transition:transform .15s, box-shadow .15s;user-select:none;
   }
   .bottle:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,0.12);}
-  .bottle.disabled{opacity:0.4;cursor:not-allowed;pointer-events:none;}
   .bottle .icon{width:34px;height:54px;flex-shrink:0;position:relative;}
   .bottle .label{font-size:0.8rem;line-height:1.3;}
   .bottle .label strong{display:block;font-size:0.85rem;}
   .bottle .label span.formula{color:var(--muted);font-size:0.75rem;}
+  .glass-bottle{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:22px;height:38px;border-radius:4px 4px 8px 8px;border:2px solid #94a3b8;background:rgba(255,255,255,0.5);}
+  .glass-bottle::before{content:"";position:absolute;top:-12px;left:50%;transform:translateX(-50%);width:10px;height:12px;border:2px solid #94a3b8;border-bottom:none;background:#fff;}
+  .glass-bottle .cap{position:absolute;top:-18px;left:50%;transform:translateX(-50%);width:14px;height:8px;border-radius:2px;}
+  .glass-bottle .fill{position:absolute;bottom:0;left:0;right:0;border-radius:0 0 6px 6px;}
+  .cap-blue{background:#2563eb;} .cap-amber{background:#b45309;} .cap-green{background:#166534;}
+  .fill-water{height:60%;background:var(--water);} .fill-acid{height:70%;background:#e6c65c;}
+  .fill-alc{height:65%;background:#cbd5e1;}
+  .hazard{position:absolute;top:-4px;right:-8px;width:14px;height:14px;background:var(--danger);color:#fff;border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:bold;}
+  .cylinder{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:20px;height:44px;border-radius:6px 6px 3px 3px;background:linear-gradient(180deg,#cbd5e1,#94a3b8);border:1px solid #64748b;}
+  .cylinder::before{content:"";position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:2px;background:#475569;}
+  .cylinder .stripe{position:absolute;top:6px;left:0;right:0;height:6px;background:#22c55e;}
 
-  /* generic bottle shape */
-  .glass-bottle{
-    position:absolute;bottom:0;left:50%;transform:translateX(-50%);
-    width:22px;height:38px;border-radius:4px 4px 8px 8px;
-    border:2px solid #94a3b8;background:rgba(255,255,255,0.5);
-  }
-  .glass-bottle::before{ /* neck */
-    content:"";position:absolute;top:-12px;left:50%;transform:translateX(-50%);
-    width:10px;height:12px;border:2px solid #94a3b8;border-bottom:none;background:#fff;
-  }
-  .glass-bottle .cap{
-    position:absolute;top:-18px;left:50%;transform:translateX(-50%);
-    width:14px;height:8px;border-radius:2px;
-  }
-  .glass-bottle .fill{
-    position:absolute;bottom:0;left:0;right:0;border-radius:0 0 6px 6px;
-  }
-  .cap-blue{background:#2563eb;}
-  .cap-amber{background:#b45309;}
-  .fill-water{height:60%;background:var(--water);}
-  .fill-acid{height:70%;background:#e6c65c;}
-  .hazard{
-    position:absolute;top:-4px;right:-8px;
-    width:14px;height:14px;background:var(--danger);color:#fff;
-    border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;
-    font-weight:bold;
-  }
-
-  /* gas cylinder icon */
-  .cylinder{
-    position:absolute;bottom:0;left:50%;transform:translateX(-50%);
-    width:20px;height:44px;border-radius:6px 6px 3px 3px;
-    background:linear-gradient(180deg,#cbd5e1,#94a3b8);
-    border:1px solid #64748b;
-  }
-  .cylinder::before{
-    content:"";position:absolute;top:-8px;left:50%;transform:translateX(-50%);
-    width:8px;height:8px;border-radius:2px;background:#475569;
-  }
-  .cylinder .stripe{
-    position:absolute;top:6px;left:0;right:0;height:6px;background:#22c55e;
-  }
-
-  /* ---------- WORKBENCH ---------- */
-  .workbench{
-    position:relative;
-    min-height:520px;
-    background:
-      radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.4), transparent 60%),
-      repeating-linear-gradient(90deg, #d8cdb6 0 2px, var(--bench) 2px 60px);
-    border-radius:14px;
-    border:1px solid #cbbf9d;
-    padding:24px 12px 12px;
-    overflow:hidden;
-  }
-  .workbench-title{
-    position:absolute;top:10px;left:16px;font-size:0.78rem;color:#6b5f43;font-weight:600;
-    letter-spacing:.03em;text-transform:uppercase;
-  }
-
-  .decor-row{
-    position:absolute;top:14px;right:16px;display:flex;gap:14px;opacity:0.85;
-  }
-  .goggles{width:34px;height:20px;position:relative;}
-  .goggles::before,.goggles::after{
-    content:"";position:absolute;top:0;width:14px;height:16px;border-radius:50%;
-    border:3px solid #334155;background:rgba(191,219,254,0.5);
-  }
-  .goggles::before{left:0;}
-  .goggles::after{right:0;}
-  .extinguisher{width:14px;height:30px;background:#dc2626;border-radius:5px 5px 3px 3px;position:relative;}
-  .extinguisher::before{content:"";position:absolute;top:-6px;left:3px;width:8px;height:6px;background:#111;border-radius:2px;}
-
-  /* stand + clamp holding the flask */
-  .stand{
-    position:absolute;left:50%;bottom:70px;transform:translateX(-90px);
-    width:8px;height:220px;background:#6b7280;border-radius:2px;
-  }
-  .stand-base{
-    position:absolute;left:50%;bottom:60px;transform:translateX(-118px);
-    width:64px;height:10px;background:#4b5563;border-radius:3px;
-  }
-  .clamp{
-    position:absolute;left:50%;bottom:230px;transform:translateX(-90px);
-    width:70px;height:10px;background:#9ca3af;border-radius:3px;
-  }
-
-  .flask-wrap{
-    position:relative;
-    width:220px;height:300px;
-    margin:40px auto 0;
-  }
+  /* flask (Erlenmeyer) — reused for hydration & esterification */
+  .flask-wrap{position:relative;width:190px;height:260px;margin:20px auto 0;}
   .flask-glass{fill:rgba(255,255,255,0.25);stroke:#94a3b8;stroke-width:3;}
-  #liquidRect{transition:height .9s ease, y .9s ease, fill 1.4s ease, opacity .6s ease;}
-  .bubble-layer{
-    position:absolute;inset:0;pointer-events:none;
-  }
-  .bubble{
-    position:absolute;
-    bottom:60px;
-    width:6px;height:6px;
-    border-radius:50%;
-    background:rgba(255,255,255,0.85);
-    animation:rise 1.6s ease-in forwards;
-  }
-  @keyframes rise{
-    0%{transform:translateY(0) scale(0.6);opacity:0.9;}
-    80%{opacity:0.7;}
-    100%{transform:translateY(-190px) scale(1.1);opacity:0;}
-  }
-  .vapor{
-    position:absolute;top:20px;left:50%;
-    width:10px;height:10px;border-radius:50%;
-    background:rgba(255,255,255,0.7);
-    filter:blur(2px);
-    animation:vaporRise 2.2s ease-out forwards;
-  }
-  @keyframes vaporRise{
-    0%{transform:translate(-50%,0) scale(0.6);opacity:0.8;}
-    100%{transform:translate(-50%,-70px) scale(2.2);opacity:0;}
-  }
-
-  .flask-label{
-    position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
-    background:#111827cc;color:#fff;padding:4px 10px;border-radius:6px;
-    font-size:0.78rem;white-space:nowrap;
-  }
+  .liquid-anim{transition:height .9s ease, y .9s ease, fill 1.4s ease, opacity .6s ease;}
+  .bubble-layer{position:absolute;inset:0;pointer-events:none;}
+  .bubble{position:absolute;bottom:60px;width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.85);animation:rise 1.6s ease-in forwards;}
+  @keyframes rise{0%{transform:translateY(0) scale(0.6);opacity:0.9;}80%{opacity:0.7;}100%{transform:translateY(-170px) scale(1.1);opacity:0;}}
+  .vapor{position:absolute;top:16px;left:50%;width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.7);filter:blur(2px);animation:vaporRise 2.2s ease-out forwards;}
+  @keyframes vaporRise{0%{transform:translate(-50%,0) scale(0.6);opacity:0.8;}100%{transform:translate(-50%,-70px) scale(2.2);opacity:0;}}
+  .flask-label{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);background:#111827cc;color:#fff;padding:4px 10px;border-radius:6px;font-size:0.75rem;white-space:nowrap;}
   .flask-label.success{background:#166534cc;}
+  .reflux{position:absolute;top:-46px;left:50%;transform:translateX(-50%);width:14px;height:50px;border:2px solid #94a3b8;border-radius:6px;background:repeating-linear-gradient(180deg,rgba(148,197,222,.4) 0 4px, transparent 4px 8px);opacity:.8;}
 
   /* burner */
-  .burner-wrap{
-    position:relative;width:80px;margin:0 auto;
-    display:flex;flex-direction:column;align-items:center;
-  }
-  .burner-body{
-    width:36px;height:34px;background:linear-gradient(180deg,#9ca3af,#6b7280);
-    border-radius:4px 4px 2px 2px;position:relative;z-index:2;
-  }
-  .burner-base{
-    width:70px;height:10px;background:#4b5563;border-radius:4px;margin-top:-2px;z-index:2;
-  }
-  .flame{
-    position:absolute;bottom:30px;left:50%;transform:translateX(-50%) scale(0);
-    width:22px;height:36px;
+  .burner-wrap{position:relative;width:80px;margin:6px auto 0;display:flex;flex-direction:column;align-items:center;}
+  .burner-body{width:36px;height:34px;background:linear-gradient(180deg,#9ca3af,#6b7280);border-radius:4px 4px 2px 2px;position:relative;z-index:2;}
+  .burner-base{width:70px;height:10px;background:#4b5563;border-radius:4px;margin-top:-2px;z-index:2;}
+  .flame{position:absolute;bottom:30px;left:50%;transform:translateX(-50%) scale(0);width:22px;height:36px;
     background:radial-gradient(circle at 50% 80%, #fff7c2 0%, #fbbf24 35%, #f97316 65%, #2563eb 100%);
     clip-path:polygon(50% 0%, 80% 40%, 65% 45%, 85% 70%, 50% 100%, 15% 70%, 35% 45%, 20% 40%);
-    transition:transform .3s ease;
-    filter:drop-shadow(0 0 8px #f59e0b);
-  }
-  .flame.lit{
-    transform:translateX(-50%) scale(1);
-    animation:flicker 0.35s infinite alternate;
-  }
-  @keyframes flicker{
-    0%{transform:translateX(-50%) scale(1) skewX(0deg);}
-    100%{transform:translateX(-50%) scale(1.08) skewX(3deg);}
-  }
+    transition:transform .3s ease;filter:drop-shadow(0 0 8px #f59e0b);}
+  .flame.lit{transform:translateX(-50%) scale(1);animation:flicker 0.35s infinite alternate;}
+  .flame.sooty{background:radial-gradient(circle at 50% 80%, #fff7c2 0%, #fbbf24 30%, #ea580c 60%, #78350f 100%);filter:drop-shadow(0 0 8px #78350f);}
+  @keyframes flicker{0%{transform:translateX(-50%) scale(1) skewX(0deg);}100%{transform:translateX(-50%) scale(1.08) skewX(3deg);}}
 
-  .progress-wrap{
-    max-width:220px;margin:10px auto 0;
-  }
-  .progress-bar{
-    height:8px;background:#e5e7eb;border-radius:6px;overflow:hidden;
-  }
-  .progress-fill{
-    height:100%;width:0%;background:linear-gradient(90deg,var(--amber),#f97316);
-    transition:width .3s linear;
-  }
+  .progress-wrap{max-width:220px;margin:10px auto 0;}
+  .progress-bar{height:8px;background:#e5e7eb;border-radius:6px;overflow:hidden;}
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--amber),#f97316);transition:width .3s linear;}
   .progress-text{font-size:0.72rem;color:var(--muted);text-align:center;margin-top:4px;}
 
-  /* rack decor */
-  .rack{
-    position:absolute;bottom:16px;left:16px;display:flex;gap:6px;align-items:flex-end;
-  }
-  .tube{
-    width:10px;height:44px;border:2px solid #94a3b8;border-radius:0 0 5px 5px;
-    background:rgba(255,255,255,0.3);position:relative;
-  }
-  .tube i{position:absolute;bottom:0;left:0;right:0;border-radius:0 0 3px 3px;}
-  .tube.t1 i{height:40%;background:#a7f3d0;}
-  .tube.t2 i{height:55%;background:#fbcfe8;}
-  .tube.t3 i{height:30%;background:#bfdbfe;}
-
-  /* ---------- CONTROL PANEL ---------- */
-  .checklist{list-style:none;margin:0;padding:0;font-size:0.85rem;}
-  .checklist li{
-    display:flex;align-items:flex-start;gap:8px;padding:7px 0;
-    border-bottom:1px dashed #e5e7eb;color:var(--muted);
-  }
+  /* checklist */
+  .checklist{list-style:none;margin:0;padding:0;font-size:0.83rem;}
+  .checklist li{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px dashed #e5e7eb;color:var(--muted);}
   .checklist li:last-child{border-bottom:none;}
-  .checklist li .dot{
-    width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;flex-shrink:0;margin-top:1px;
-    display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;
-  }
+  .checklist li .dot{width:16px;height:16px;border-radius:50%;border:2px solid #cbd5e1;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;}
   .checklist li.done{color:var(--ink);font-weight:600;}
   .checklist li.done .dot{background:var(--teal);border-color:var(--teal);}
   .checklist li.done .dot::after{content:"✓";}
 
-  .equation{
-    display:flex;flex-wrap:wrap;align-items:center;gap:6px;
-    font-size:0.95rem;background:#f8fafc;border-radius:8px;padding:12px;margin-bottom:14px;
-    transition:box-shadow .4s, background .4s;
-  }
+  /* equation */
+  .equation{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:0.92rem;background:#f8fafc;border-radius:8px;padding:12px;margin-bottom:14px;transition:box-shadow .4s, background .4s;}
   .equation.highlight{background:#f0fdf4;box-shadow:0 0 0 2px #16a34a inset;}
-  .equation .arrow{font-weight:bold;color:var(--teal);position:relative;padding:0 4px;}
-  .equation small{display:block;font-size:0.6rem;color:var(--muted);text-align:center;position:absolute;top:-14px;left:0;right:0;}
-  .equation .arrow{margin-top:14px;}
+  .equation .arrow{font-weight:bold;color:var(--teal);position:relative;padding:0 4px;margin-top:14px;}
+  .equation small{display:block;font-size:0.58rem;color:var(--muted);text-align:center;position:absolute;top:-14px;left:0;right:0;white-space:nowrap;}
 
-  .btn{
-    display:inline-flex;align-items:center;gap:6px;
-    padding:9px 14px;border:none;border-radius:8px;font-size:0.85rem;font-weight:600;
-    cursor:pointer;transition:filter .15s, transform .1s;
-  }
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border:none;border-radius:8px;font-size:0.83rem;font-weight:600;cursor:pointer;transition:filter .15s, transform .1s;}
   .btn:active{transform:scale(0.97);}
   .btn:disabled{opacity:0.45;cursor:not-allowed;}
   .btn-heat{background:linear-gradient(90deg,#f97316,#dc2626);color:#fff;}
   .btn-reset{background:#e5e7eb;color:#374151;}
+  .btn-teal{background:linear-gradient(90deg,var(--teal),var(--teal-light));color:#fff;}
+  .btn-outline{background:#fff;border:1px solid #cbd5e1;color:#374151;}
   .btn-row{display:flex;gap:10px;margin:14px 0;flex-wrap:wrap;}
 
-  .log{
-    background:#0f172a;color:#a7f3d0;font-family:"Consolas",monospace;
-    font-size:0.75rem;border-radius:8px;padding:10px;height:150px;overflow-y:auto;
-    margin-top:8px;
-  }
+  /* log */
+  .log{background:#0f172a;color:#a7f3d0;font-family:"Consolas",monospace;font-size:0.73rem;border-radius:8px;padding:10px;height:140px;overflow-y:auto;margin-top:8px;}
   .log p{margin:0 0 4px;}
   .log p.warn{color:#fca5a5;}
   .log p.ok{color:#86efac;font-weight:bold;}
 
-  .note{
-    font-size:0.75rem;color:var(--muted);background:#f8fafc;border-left:3px solid var(--teal-light);
-    padding:8px 10px;border-radius:6px;margin-top:12px;
-  }
+  .note{font-size:0.74rem;color:var(--muted);background:#f8fafc;border-left:3px solid var(--teal-light);padding:8px 10px;border-radius:6px;margin-top:12px;}
 
-  footer{
-    text-align:center;font-size:0.75rem;color:var(--muted);padding:20px;
-  }
+  /* test tubes */
+  .tt-rack{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;padding:10px 0 4px;}
+  .tt-item{text-align:center;font-size:0.75rem;width:100px;}
+  .test-tube{width:36px;height:96px;border:2px solid #94a3b8;border-bottom-left-radius:16px;border-bottom-right-radius:16px;position:relative;background:rgba(255,255,255,0.15);overflow:hidden;margin:0 auto;}
+  .tt-liquid{position:absolute;bottom:0;left:0;right:0;transition:height .8s ease, background .8s ease;}
+  .tt-item .name{margin-top:8px;font-weight:600;font-size:0.72rem;}
+  .tt-item .formula{color:var(--muted);font-size:0.68rem;display:block;}
+  .tt-item .btns{display:flex;flex-direction:column;gap:4px;margin-top:8px;}
+  .tt-item button{font-size:0.68rem;padding:5px 6px;}
+  .tt-result{font-size:0.68rem;margin-top:5px;min-height:14px;font-weight:600;}
+
+  /* sliders / selects */
+  .field{margin-bottom:12px;}
+  .field label{display:block;font-size:0.78rem;font-weight:600;margin-bottom:4px;}
+  .field select, .field input[type=range]{width:100%;}
+  .field .val{font-size:0.72rem;color:var(--muted);}
+  .switch-row{display:flex;align-items:center;gap:8px;font-size:0.82rem;margin-bottom:12px;}
+
+  /* redox cell */
+  .cell-row{display:flex;justify-content:center;align-items:flex-end;gap:60px;position:relative;padding-top:50px;}
+  .cell-beaker{width:130px;height:160px;border:3px solid #94a3b8;border-radius:0 0 14px 14px;position:relative;background:rgba(255,255,255,0.15);overflow:hidden;}
+  .cell-liquid{position:absolute;bottom:0;left:0;right:0;height:75%;transition:background .6s;}
+  .electrode{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:24px;border-radius:3px;transition:width .8s, height .8s;}
+  .electrode.zn{background:linear-gradient(180deg,#cbd5e1,#94a3b8);height:120px;}
+  .electrode.cu{background:linear-gradient(180deg,#f97316,#b45309);height:120px;}
+  .electrode-tag{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:0.72rem;font-weight:700;}
+  .ion-float{position:absolute;font-size:0.62rem;font-weight:700;color:#1e3a8a;animation:ionFloat 2.2s ease-out forwards;pointer-events:none;}
+  @keyframes ionFloat{0%{opacity:0.9;transform:translateY(0);}100%{opacity:0;transform:translateY(30px);}}
+  .wire{position:absolute;top:0;left:0;width:100%;height:50px;pointer-events:none;}
+  .voltmeter{position:absolute;top:-6px;left:50%;transform:translateX(-50%);background:#111827;color:#4ade80;font-family:"Consolas",monospace;font-size:0.85rem;padding:6px 12px;border-radius:6px;z-index:5;box-shadow:0 2px 6px rgba(0,0,0,.3);}
+  .electron{position:absolute;top:22px;width:8px;height:8px;border-radius:50%;background:#2563eb;box-shadow:0 0 4px #2563eb;}
+  .salt-bridge{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);width:160px;height:40px;border:4px solid #9ca3af;border-bottom:none;border-radius:40px 40px 0 0;}
+  .deposit{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg,#fdba74,#c2410c);transition:height 4s linear, opacity .4s;height:0;opacity:.85;}
+
+  /* kinetics */
+  .gas-tube{width:44px;height:180px;border:2px solid #94a3b8;border-radius:6px 6px 0 0;position:relative;margin:0 auto;background:rgba(255,255,255,0.15);overflow:hidden;}
+  .gas-fill{position:absolute;bottom:0;left:0;right:0;background:rgba(220,38,38,0.35);transition:height .3s linear;}
+  .gas-scale{position:absolute;top:0;bottom:0;right:-26px;display:flex;flex-direction:column;justify-content:space-between;font-size:0.55rem;color:var(--muted);}
+  canvas#kinChart{width:100%;max-width:300px;display:block;margin:8px auto 0;background:#fff;border-radius:8px;border:1px solid #e5e7eb;}
+
+  /* nomenclature quiz */
+  .ref-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:18px;}
+  .ref-card{background:#f8fafc;border-radius:10px;padding:12px;font-size:0.78rem;border:1px solid #e5e7eb;}
+  .ref-card h4{margin:0 0 6px;color:var(--teal);font-size:0.85rem;}
+  .ref-card ul{margin:0;padding-left:16px;line-height:1.5;}
+  .quiz-box{background:#f8fafc;border-radius:10px;padding:18px;text-align:center;}
+  .quiz-formula{font-size:1.3rem;font-weight:700;margin-bottom:14px;letter-spacing:.02em;}
+  .quiz-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:420px;margin:0 auto;}
+  .quiz-choices button{padding:12px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;cursor:pointer;font-size:0.85rem;}
+  .quiz-choices button.correct{background:#dcfce7;border-color:#16a34a;}
+  .quiz-choices button.wrong{background:#fee2e2;border-color:#dc2626;}
+  .quiz-feedback{margin-top:12px;font-size:0.85rem;font-weight:600;min-height:20px;}
+  .quiz-progress{font-size:0.75rem;color:var(--muted);margin-bottom:10px;}
+
+  footer{text-align:center;font-size:0.75rem;color:var(--muted);padding:20px;}
 </style>
 </head>
 <body>
 
 <header class="app-header">
-  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+  <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
     <path d="M16 4h8v9l9 17c1.5 3-1 6-4.5 6h-17c-3.5 0-6-3-4.5-6l9-17V4z" fill="#ffffff33" stroke="#fff" stroke-width="2"/>
     <path d="M13 26h14" stroke="#fff" stroke-width="2"/>
   </svg>
   <div class="titles">
     <h1>Laboratoire de Chimie Virtuel</h1>
-    <p>Chimie organique — Terminale · Hydratation des alcènes</p>
+    <p>Programme de Première C (APC — Cameroun)</p>
   </div>
+  <button class="home-btn" id="homeBtn" onclick="showView('view-home')">🏠 Accueil</button>
 </header>
 <div class="safety-banner">⚠️ Équipements de protection obligatoires (lunettes, gants) — même en version virtuelle, prends les bonnes habitudes du laboratoire réel !</div>
 
-<div class="lab-layout">
+<main>
 
-  <!-- REACTIFS -->
-  <div class="panel">
-    <h2>🧪 Réactifs &amp; matériel</h2>
-
-    <div class="bottle" id="bottle-water" draggable="true" ondragstart="onDragStart(event,'water')" onclick="addReagent('water')" title="Verser l'eau distillée dans le ballon">
-      <div class="icon">
-        <div class="glass-bottle"><span class="cap cap-blue"></span><span class="fill fill-water"></span></div>
-      </div>
-      <div class="label"><strong>Eau distillée</strong><span class="formula">H₂O</span></div>
+  <!-- ======================= HOME ======================= -->
+  <section id="view-home" class="view active">
+    <div class="hero">
+      <h2>Choisis un chapitre à manipuler</h2>
+      <p>Chaque carte ouvre une manipulation virtuelle interactive correspondant à un chapitre du programme.</p>
     </div>
-
-    <div class="bottle" id="bottle-acid" draggable="true" ondragstart="onDragStart(event,'acid')" onclick="addReagent('acid')" title="Ajouter le catalyseur acide sulfurique">
-      <div class="icon">
-        <div class="glass-bottle"><span class="cap cap-amber"></span><span class="fill fill-acid"></span><span class="hazard">!</span></div>
+    <div class="chapter-grid">
+      <div class="chapter-card" onclick="showView('view-kinetics')">
+        <div class="chapter-icon">⏱️</div>
+        <h3>Cinétique chimique</h3>
+        <p>Facteurs cinétiques (concentration, température, catalyseur) : suivre l'évolution d'une réaction dans le temps.</p>
+        <span class="tag">Manipulation</span>
       </div>
-      <div class="label"><strong>Ac. sulfurique</strong><span class="formula">H₂SO₄ (catalyseur)</span></div>
-    </div>
-
-    <div class="bottle" id="bottle-alkene" draggable="true" ondragstart="onDragStart(event,'alkene')" onclick="addReagent('alkene')" title="Faire buller le gaz éthylène">
-      <div class="icon">
-        <div class="cylinder"><span class="stripe"></span></div>
+      <div class="chapter-card" onclick="showView('view-redox')">
+        <div class="chapter-icon">🔋</div>
+        <h3>Oxydoréduction — Pile Daniell</h3>
+        <p>Construire une pile Zn/Cu, fermer le circuit, observer les électrodes et mesurer la tension.</p>
+        <span class="tag">Manipulation</span>
       </div>
-      <div class="label"><strong>Éthylène (gaz)</strong><span class="formula">CH₂=CH₂</span></div>
-    </div>
-
-    <div class="note">Glisse-dépose chaque flacon sur le ballon, ou clique dessus. L'ordre est libre, mais réfléchis au protocole réel avant de chauffer !</div>
-  </div>
-
-  <!-- PAILLASSE -->
-  <div class="panel" style="padding:0;">
-    <div class="workbench" id="dropZoneWrap">
-      <div class="workbench-title">Paillasse — Poste n°1</div>
-      <div class="decor-row">
-        <div class="goggles" title="Lunettes de sécurité"></div>
-        <div class="extinguisher" title="Extincteur"></div>
+      <div class="chapter-card" onclick="showView('view-alkanes')">
+        <div class="chapter-icon">🔥</div>
+        <h3>Alcanes — Combustion</h3>
+        <p>Combustion complète et incomplète d'un hydrocarbure, test du CO₂ à l'eau de chaux.</p>
+        <span class="tag">Manipulation</span>
       </div>
-
-      <div class="rack">
-        <div class="tube t1"><i></i></div>
-        <div class="tube t2"><i></i></div>
-        <div class="tube t3"><i></i></div>
+      <div class="chapter-card" onclick="showView('view-alkenes')">
+        <div class="chapter-icon">🧪</div>
+        <h3>Alcènes — Tests et hydratation</h3>
+        <p>Eau de brome, KMnO₄, puis hydratation catalytique de l'éthylène en éthanol.</p>
+        <span class="tag">Manipulation</span>
       </div>
-
-      <div class="stand-base"></div>
-      <div class="stand"></div>
-      <div class="clamp"></div>
-
-      <div class="flask-wrap" id="flask" ondragover="event.preventDefault()" ondrop="onDrop(event)">
-        <svg viewBox="0 0 200 280" width="100%" height="100%">
-          <defs>
-            <clipPath id="flaskClip">
-              <path d="M80,10 L120,10 L120,90 L165,250 Q172,270 155,270 L45,270 Q28,270 35,250 L80,90 Z"/>
-            </clipPath>
-          </defs>
-          <g clip-path="url(#flaskClip)">
-            <rect id="liquidRect" x="0" y="270" width="200" height="0" fill="var(--water)"/>
-          </g>
-          <path class="flask-glass" d="M80,10 L120,10 L120,90 L165,250 Q172,270 155,270 L45,270 Q28,270 35,250 L80,90 Z"/>
-        </svg>
-        <div class="bubble-layer" id="bubbleLayer"></div>
-        <div class="flask-label" id="flaskLabel">Ballon vide</div>
+      <div class="chapter-card" onclick="showView('view-alcohols')">
+        <div class="chapter-icon">🍾</div>
+        <h3>Les alcools</h3>
+        <p>Réaction au sodium, oxydation ménagée (primaire/secondaire/tertiaire), estérification.</p>
+        <span class="tag">Manipulation</span>
       </div>
-
-      <div class="burner-wrap">
-        <div class="flame" id="flame"></div>
-        <div class="burner-body"></div>
-        <div class="burner-base"></div>
+      <div class="chapter-card" onclick="showView('view-halides')">
+        <div class="chapter-icon">💧</div>
+        <h3>Dérivés halogénés</h3>
+        <p>Substitution basique (hydrolyse) puis test d'identification au nitrate d'argent.</p>
+        <span class="tag">Manipulation</span>
       </div>
-
-      <div class="progress-wrap">
-        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-        <div class="progress-text" id="progressText">En attente des réactifs…</div>
+      <div class="chapter-card" onclick="showView('view-nomenclature')">
+        <div class="chapter-icon">📖</div>
+        <h3>Nomenclature organique</h3>
+        <p>Fiche de référence (groupes fonctionnels) et quiz d'entraînement chronométré.</p>
+        <span class="tag quiz">Fiche &amp; Quiz</span>
       </div>
     </div>
-  </div>
+    <div class="note" style="margin-top:20px;">ℹ️ Cette sélection couvre les manipulations pratiques principales du programme de chimie de Première C. Les notions plus théoriques (structure de l'atome, liaison chimique, généralités sur les molécules organiques) sont résumées dans la fiche « Nomenclature organique ». Certains points sont simplifiés à des fins pédagogiques.</div>
+  </section>
 
-  <!-- PROTOCOLE / CONTROLES -->
-  <div class="panel">
-    <h2>📋 Protocole</h2>
-    <ul class="checklist" id="checklist">
-      <li data-step="water"><span class="dot"></span> Verser l'eau distillée dans le ballon</li>
-      <li data-step="acid"><span class="dot"></span> Ajouter quelques gouttes d'acide sulfurique (catalyseur)</li>
-      <li data-step="alkene"><span class="dot"></span> Faire buller le gaz éthylène dans le mélange</li>
-      <li data-step="heat"><span class="dot"></span> Chauffer le mélange (Δ)</li>
-      <li data-step="done"><span class="dot"></span> Observer la formation de l'éthanol</li>
-    </ul>
+  <!-- ======================= KINETICS ======================= -->
+  <section id="view-kinetics" class="view">
+    <div class="chapter-header"><h2>⏱️ Cinétique chimique</h2><span class="subtitle">Facteurs cinétiques — réaction Mg + HCl</span></div>
+    <div class="lab-layout">
+      <div class="panel">
+        <div class="workbench">
+          <div class="workbench-title">Paillasse — Suivi cinétique</div>
+          <div style="display:flex;gap:40px;justify-content:center;align-items:flex-end;flex-wrap:wrap;">
+            <div style="text-align:center;">
+              <div class="gas-tube">
+                <div class="gas-scale"><span>60mL</span><span>30mL</span><span>0mL</span></div>
+                <div class="gas-fill" id="kinGasFill"></div>
+              </div>
+              <div style="font-size:0.72rem;margin-top:6px;color:var(--muted);">Ruban de Mg + HCl</div>
+            </div>
+            <div style="flex:1;min-width:260px;max-width:320px;">
+              <canvas id="kinChart" width="300" height="180"></canvas>
+              <div class="progress-text" id="kinReadout">V = 0 mL — t = 0 s</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3 class="ptitle">🎛️ Paramètres expérimentaux</h3>
+        <div class="field">
+          <label>Concentration de l'acide [HCl]</label>
+          <select id="kinConc">
+            <option value="0.5">0,5 mol/L</option>
+            <option value="1" selected>1,0 mol/L</option>
+            <option value="2">2,0 mol/L</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Température du milieu</label>
+          <select id="kinTemp">
+            <option value="20" selected>20 °C</option>
+            <option value="40">40 °C</option>
+            <option value="60">60 °C</option>
+          </select>
+        </div>
+        <div class="switch-row">
+          <input type="checkbox" id="kinCatalyst"/>
+          <label for="kinCatalyst">Ajouter un catalyseur</label>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-heat" onclick="Kin.start()" id="kinStartBtn">▶ Lancer la réaction</button>
+          <button class="btn btn-reset" onclick="Kin.reset()">↺ Réinitialiser</button>
+        </div>
+        <h3 class="ptitle">🖊️ Journal</h3>
+        <div class="log" id="kinLog"></div>
+        <div class="note">Équation : Mg(s) + 2H⁺(aq) → Mg²⁺(aq) + H₂(g). La courbe grisée est celle de l'essai précédent : elle permet de comparer l'effet d'un facteur cinétique en changeant un seul paramètre à la fois.</div>
+      </div>
+    </div>
+  </section>
 
-    <h2 style="margin-top:18px;">⚗️ Équation de la réaction</h2>
-    <div class="equation" id="equation">
-      <span>CH₂=CH₂</span><span>+</span><span>H₂O</span>
-      <span class="arrow">
-        <small>H₂SO₄, Δ</small>
-        &#10230;
-      </span>
-      <span id="productLabel">CH₃-CH₂-OH</span>
+  <!-- ======================= REDOX ======================= -->
+  <section id="view-redox" class="view">
+    <div class="chapter-header"><h2>🔋 Oxydoréduction — La pile Daniell</h2><span class="subtitle">Couple Zn²⁺/Zn et Cu²⁺/Cu</span></div>
+    <div class="lab-layout">
+      <div class="panel">
+        <div class="workbench" id="redoxWorkbench">
+          <div class="workbench-title">Paillasse — Pile électrochimique</div>
+          <div class="cell-row">
+            <div class="wire">
+              <div class="voltmeter" id="voltmeter">0,00 V</div>
+            </div>
+            <div class="salt-bridge"></div>
+            <div style="position:relative;">
+              <div class="electrode-tag" style="color:#475569;">Zn</div>
+              <div class="cell-beaker">
+                <div class="cell-liquid" id="znLiquid" style="background:rgba(226,232,240,0.4);"></div>
+                <div class="electrode zn" id="znElectrode"></div>
+              </div>
+              <div style="text-align:center;font-size:0.7rem;margin-top:6px;color:var(--muted);">ZnSO₄ (aq)</div>
+            </div>
+            <div style="position:relative;">
+              <div class="electrode-tag" style="color:#b45309;">Cu</div>
+              <div class="cell-beaker">
+                <div class="cell-liquid" id="cuLiquid" style="background:rgba(59,130,246,0.35);"></div>
+                <div class="electrode cu" id="cuElectrode"><div class="deposit" id="cuDeposit"></div></div>
+              </div>
+              <div style="text-align:center;font-size:0.7rem;margin-top:6px;color:var(--muted);">CuSO₄ (aq)</div>
+            </div>
+          </div>
+          <div id="ionLayer" style="position:relative;height:0;"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3 class="ptitle">⚗️ Demi-équations</h3>
+        <div class="equation" id="redoxEquation" style="flex-direction:column;align-items:flex-start;gap:4px;">
+          <span>Oxydation (anode, Zn) : Zn → Zn²⁺ + 2e⁻</span>
+          <span>Réduction (cathode, Cu) : Cu²⁺ + 2e⁻ → Cu</span>
+          <span style="font-weight:700;">Bilan : Zn + Cu²⁺ → Zn²⁺ + Cu</span>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-heat" id="redoxBtn" onclick="Redox.toggle()">⚡ Fermer le circuit</button>
+          <button class="btn btn-reset" onclick="Redox.reset()">↺ Réinitialiser</button>
+        </div>
+        <h3 class="ptitle">🖊️ Journal</h3>
+        <div class="log" id="redoxLog"></div>
+        <div class="note">Simplification pédagogique : la tension affichée (≈1,10 V, f.é.m. standard du couple Zn²⁺/Zn et Cu²⁺/Cu) n'apparaît que lorsque le circuit est fermé, pour bien visualiser le passage du courant, le sens des électrons dans le fil et des ions dans le pont salin.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= ALKANES (combustion) ======================= -->
+  <section id="view-alkanes" class="view">
+    <div class="chapter-header"><h2>🔥 Les alcanes — Combustion</h2><span class="subtitle">Combustion complète / incomplète du butane</span></div>
+    <div class="lab-layout">
+      <div class="panel">
+        <div class="workbench">
+          <div class="workbench-title">Paillasse — Test à l'eau de chaux</div>
+          <div style="display:flex;justify-content:center;gap:50px;align-items:flex-end;flex-wrap:wrap;">
+            <div class="burner-wrap">
+              <div class="flame" id="alkaneFlame"></div>
+              <div class="burner-body"></div>
+              <div class="burner-base"></div>
+              <div style="font-size:0.7rem;margin-top:6px;color:var(--muted);text-align:center;">Bec Bunsen (butane)</div>
+            </div>
+            <div class="tt-item">
+              <div class="test-tube"><div class="tt-liquid" id="limewaterLiquid" style="height:55%;background:rgba(255,255,255,0.25);"></div></div>
+              <div class="name">Eau de chaux</div>
+              <span class="formula">Ca(OH)₂ (aq)</span>
+              <div class="tt-result" id="limewaterResult"></div>
+            </div>
+            <div class="tt-item">
+              <div style="width:40px;height:40px;border-radius:50%;border:2px solid #94a3b8;background:rgba(255,255,255,0.3);margin:0 auto;position:relative;overflow:hidden;" id="sootPlate"></div>
+              <div class="name">Verre de montre</div>
+              <span class="formula">dépôt de suie ?</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3 class="ptitle">🎛️ Réglages</h3>
+        <div class="field">
+          <label>Alimentation en dioxygène</label>
+          <select id="alkaneMode">
+            <option value="complete">Suffisante (excès d'air)</option>
+            <option value="incomplete">Insuffisante (air limité)</option>
+          </select>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-heat" onclick="Alkane.ignite()">🔥 Allumer</button>
+          <button class="btn btn-reset" onclick="Alkane.reset()">↺ Réinitialiser</button>
+        </div>
+        <div class="equation" id="alkaneEquation">CH₄ (ou C₄H₁₀) + O₂ → CO₂ + H₂O</div>
+        <h3 class="ptitle">🖊️ Journal</h3>
+        <div class="log" id="alkaneLog"></div>
+        <div class="note">Le trouble de l'eau de chaux met en évidence le CO₂ formé : CO₂ + Ca(OH)₂ → CaCO₃(s) (précipité blanc) + H₂O. En combustion incomplète, du CO (toxique) et de la suie (carbone) apparaissent en plus.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= ALKENES ======================= -->
+  <section id="view-alkenes" class="view">
+    <div class="chapter-header"><h2>🧪 Les alcènes</h2><span class="subtitle">Tests caractéristiques puis hydratation catalytique</span></div>
+
+    <div class="panel" style="margin-bottom:18px;">
+      <h3 class="ptitle">1️⃣ Tests de reconnaissance de la double liaison C=C</h3>
+      <div class="tt-rack">
+        <div class="tt-item">
+          <div class="test-tube"><div class="tt-liquid" id="brWaterLiquid" style="height:55%;background:#d97706;"></div></div>
+          <div class="name">Eau de brome</div><span class="formula">Br₂ (aq)</span>
+          <div class="btns"><button class="btn btn-outline" onclick="AlkeneTests.testBromine()">+ Ajouter l'alcène</button></div>
+          <div class="tt-result" id="brWaterResult"></div>
+        </div>
+        <div class="tt-item">
+          <div class="test-tube"><div class="tt-liquid" id="kmnoLiquid" style="height:55%;background:#7c3aed;"></div></div>
+          <div class="name">Perm. de potassium</div><span class="formula">KMnO₄ (aq)</span>
+          <div class="btns"><button class="btn btn-outline" onclick="AlkeneTests.testKMnO4()">+ Ajouter l'alcène</button></div>
+          <div class="tt-result" id="kmnoResult"></div>
+        </div>
+      </div>
+      <div class="note">La décoloration de ces deux réactifs met en évidence une insaturation (liaison double ou triple) dans la molécule testée.</div>
     </div>
 
-    <div class="btn-row">
-      <button class="btn btn-heat" id="heatBtn" onclick="toggleHeat()" disabled>🔥 Chauffer</button>
-      <button class="btn btn-reset" onclick="resetLab()">↺ Réinitialiser</button>
+    <div class="chapter-header"><span class="subtitle" style="font-weight:700;color:var(--ink);">2️⃣ Hydratation catalytique de l'éthylène</span></div>
+    <div class="lab-layout">
+      <div class="panel">
+        <h3 class="ptitle">🧪 Réactifs</h3>
+        <div class="bottle" onclick="Alkene.addReagent('water')">
+          <div class="icon"><div class="glass-bottle"><span class="cap cap-blue"></span><span class="fill fill-water"></span></div></div>
+          <div class="label"><strong>Eau distillée</strong><span class="formula">H₂O</span></div>
+        </div>
+        <div class="bottle" onclick="Alkene.addReagent('acid')">
+          <div class="icon"><div class="glass-bottle"><span class="cap cap-amber"></span><span class="fill fill-acid"></span><span class="hazard">!</span></div></div>
+          <div class="label"><strong>Ac. sulfurique</strong><span class="formula">H₂SO₄ (catalyseur)</span></div>
+        </div>
+        <div class="bottle" onclick="Alkene.addReagent('alkene')">
+          <div class="icon"><div class="cylinder"><span class="stripe"></span></div></div>
+          <div class="label"><strong>Éthylène (gaz)</strong><span class="formula">CH₂=CH₂</span></div>
+        </div>
+        <div class="note">Clique sur chaque flacon (ordre libre) puis chauffe le ballon.</div>
+      </div>
+      <div class="panel">
+        <div class="workbench" style="min-height:380px;">
+          <div class="workbench-title">Paillasse — Hydratation</div>
+          <div class="flask-wrap" id="alkeneFlaskWrap">
+            <svg viewBox="0 0 200 280" width="100%" height="100%">
+              <defs><clipPath id="alkeneFlaskClip"><path d="M80,10 L120,10 L120,90 L165,250 Q172,270 155,270 L45,270 Q28,270 35,250 L80,90 Z"/></clipPath></defs>
+              <g clip-path="url(#alkeneFlaskClip)"><rect id="alkeneLiquidRect" class="liquid-anim" x="0" y="270" width="200" height="0" fill="var(--water)"/></g>
+              <path class="flask-glass" d="M80,10 L120,10 L120,90 L165,250 Q172,270 155,270 L45,270 Q28,270 35,250 L80,90 Z"/>
+            </svg>
+            <div class="bubble-layer" id="alkeneBubbleLayer"></div>
+            <div class="flask-label" id="alkeneFlaskLabel">Ballon vide</div>
+          </div>
+          <div class="burner-wrap">
+            <div class="flame" id="alkeneFlame"></div>
+            <div class="burner-body"></div>
+            <div class="burner-base"></div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-bar"><div class="progress-fill" id="alkeneProgressFill"></div></div>
+            <div class="progress-text" id="alkeneProgressText">En attente des réactifs…</div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3 class="ptitle">📋 Protocole</h3>
+        <ul class="checklist" id="alkeneChecklist">
+          <li data-step="water"><span class="dot"></span> Verser l'eau distillée</li>
+          <li data-step="acid"><span class="dot"></span> Ajouter le catalyseur H₂SO₄</li>
+          <li data-step="alkene"><span class="dot"></span> Faire buller l'éthylène</li>
+          <li data-step="heat"><span class="dot"></span> Chauffer (Δ)</li>
+          <li data-step="done"><span class="dot"></span> Observer l'éthanol formé</li>
+        </ul>
+        <h3 class="ptitle" style="margin-top:14px;">⚗️ Équation</h3>
+        <div class="equation" id="alkeneEquation">
+          <span>CH₂=CH₂</span><span>+</span><span>H₂O</span>
+          <span class="arrow"><small>H₂SO₄, Δ</small>&#10230;</span>
+          <span>CH₃-CH₂-OH</span>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-heat" id="alkeneHeatBtn" onclick="Alkene.toggleHeat()" disabled>🔥 Chauffer</button>
+          <button class="btn btn-reset" onclick="Alkene.reset()">↺ Réinitialiser</button>
+        </div>
+        <div class="log" id="alkeneLog"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= ALCOHOLS ======================= -->
+  <section id="view-alcohols" class="view">
+    <div class="chapter-header"><h2>🍾 Les alcools</h2><span class="subtitle">Réactivité comparée et estérification</span></div>
+
+    <div class="panel" style="margin-bottom:18px;">
+      <h3 class="ptitle">1️⃣ Réaction avec le sodium (tous les alcools réagissent)</h3>
+      <div class="tt-rack">
+        <div class="tt-item">
+          <div class="test-tube"><div class="tt-liquid" id="naTube1" style="height:55%;background:rgba(203,213,225,0.5);"></div></div>
+          <div class="name">Éthanol</div><span class="formula">alcool I — CH₃CH₂OH</span>
+          <div class="btns"><button class="btn btn-outline" onclick="Alcohol.testSodium(1)">+ Na</button></div>
+          <div class="tt-result" id="naResult1"></div>
+        </div>
+        <div class="tt-item">
+          <div class="test-tube"><div class="tt-liquid" id="naTube2" style="height:55%;background:rgba(203,213,225,0.5);"></div></div>
+          <div class="name">Propan-2-ol</div><span class="formula">alcool II</span>
+          <div class="btns"><button class="btn btn-outline" onclick="Alcohol.testSodium(2)">+ Na</button></div>
+          <div class="tt-result" id="naResult2"></div>
+        </div>
+        <div class="tt-item">
+          <div class="test-tube"><div class="tt-liquid" id="naTube3" style="height:55%;background:rgba(203,213,225,0.5);"></div></div>
+          <div class="name">2-méthylpropan-2-ol</div><span class="formula">alcool III</span>
+          <div class="btns"><button class="btn btn-outline" onclick="Alcohol.testSodium(3)">+ Na</button></div>
+          <div class="tt-result" id="naResult3"></div>
+        </div>
+      </div>
+      <div class="note">2 R-OH + 2 Na → 2 R-ONa + H₂ (effervescence). Cette réaction ne permet pas de distinguer les classes d'alcool : tous réagissent.</div>
     </div>
 
-    <h2>🖊️ Journal d'observations</h2>
-    <div class="log" id="log"></div>
-
-    <div class="note" id="pedagoNote">
-      💡 <strong>À retenir :</strong> l'hydratation catalytique d'un alcène (ici l'éthylène) en présence d'acide sulfurique concentré donne un alcool — ici l'éthanol. C'est une addition sur la double liaison C=C.
+    <div class="panel" style="margin-bottom:18px;">
+      <h3 class="ptitle">2️⃣ Oxydation ménagée (K₂Cr₂O₇ / H₂SO₄, à chaud)</h3>
+      <div class="tt-rack">
+        <div class="tt-item">
+          <div class="test-tube"><div class="tt-liquid" id="oxTube1" style="height:55%;background:#f59e0b;"></div></div>
+          <div class="name">Éthanol (I)</div><span class="formula">→ acide éthanoïque</span>
+          <div class="btns"><button class="btn btn-outline" onclick="Alcohol.testOxidation(1)">Oxyder</button></div>
+          <div class="tt-result" id="oxResult1"></div>
+        </div>
+        <div class="tt-item">
+          <div class="test-tube"><div class="tt-liquid" id="oxTube2" style="height:55%;background:#f59e0b;"></div></div>
+          <div class="name">Propan-2-ol (II)</div><span class="formula">→ propanone</span>
+          <div class="btns"><button class="btn btn-outline" onclick="Alcohol.testOxidation(2)">Oxyder</button></div>
+          <div class="tt-result" id="oxResult2"></div>
+        </div>
+        <div class="tt-item">
+          <div class="test-tube"><div class="tt-liquid" id="oxTube3" style="height:55%;background:#f59e0b;"></div></div>
+          <div class="name">Alcool tertiaire (III)</div><span class="formula">→ pas de réaction</span>
+          <div class="btns"><button class="btn btn-outline" onclick="Alcohol.testOxidation(3)">Oxyder</button></div>
+          <div class="tt-result" id="oxResult3"></div>
+        </div>
+      </div>
+      <div class="note">Le virage orange → vert (Cr₂O₇²⁻ → Cr³⁺) indique une oxydation. L'alcool tertiaire n'a pas d'hydrogène sur le carbone fonctionnel : il ne s'oxyde pas, la solution reste orange.</div>
     </div>
-  </div>
 
-</div>
+    <div class="panel">
+      <h3 class="ptitle">3️⃣ Estérification (réaction lente, limitée, athermique)</h3>
+      <div class="lab-layout">
+        <div class="panel" style="box-shadow:none;padding:0;">
+          <div class="bottle" onclick="Ester.addReagent('acid')">
+            <div class="icon"><div class="glass-bottle"><span class="cap cap-green"></span><span class="fill fill-acid"></span></div></div>
+            <div class="label"><strong>Ac. éthanoïque</strong><span class="formula">CH₃COOH</span></div>
+          </div>
+          <div class="bottle" onclick="Ester.addReagent('alcohol')">
+            <div class="icon"><div class="glass-bottle"><span class="cap cap-blue"></span><span class="fill fill-alc"></span></div></div>
+            <div class="label"><strong>Éthanol</strong><span class="formula">C₂H₅OH (+ H₂SO₄)</span></div>
+          </div>
+        </div>
+        <div class="panel" style="box-shadow:none;padding:0;">
+          <div class="workbench" style="min-height:320px;">
+            <div class="workbench-title">Chauffage à reflux</div>
+            <div class="flask-wrap" style="height:220px;">
+              <div class="reflux"></div>
+              <svg viewBox="0 0 200 280" width="100%" height="100%">
+                <defs><clipPath id="esterFlaskClip"><path d="M80,10 L120,10 L120,90 L165,250 Q172,270 155,270 L45,270 Q28,270 35,250 L80,90 Z"/></clipPath></defs>
+                <g clip-path="url(#esterFlaskClip)">
+                  <rect id="esterLiquidRect" class="liquid-anim" x="0" y="270" width="200" height="0" fill="var(--water)"/>
+                  <rect id="esterLayerRect" class="liquid-anim" x="0" y="270" width="200" height="0" fill="rgba(250,204,21,.85)"/>
+                </g>
+                <path class="flask-glass" d="M80,10 L120,10 L120,90 L165,250 Q172,270 155,270 L45,270 Q28,270 35,250 L80,90 Z"/>
+              </svg>
+              <div class="bubble-layer" id="esterBubbleLayer"></div>
+              <div class="flask-label" id="esterFlaskLabel">Ballon vide</div>
+            </div>
+            <div class="burner-wrap">
+              <div class="flame" id="esterFlame"></div>
+              <div class="burner-body"></div>
+              <div class="burner-base"></div>
+            </div>
+            <div class="progress-wrap">
+              <div class="progress-bar"><div class="progress-fill" id="esterProgressFill"></div></div>
+              <div class="progress-text" id="esterProgressText">En attente des réactifs…</div>
+            </div>
+          </div>
+        </div>
+        <div class="panel" style="box-shadow:none;padding:0;">
+          <div class="equation" id="esterEquation" style="flex-direction:column;align-items:flex-start;">
+            <span>CH₃COOH + C₂H₅OH  <b>⇌</b><small style="position:static;display:inline;">(H₂SO₄, Δ)</small>  CH₃COOC₂H₅ + H₂O</span>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-heat" id="esterHeatBtn" onclick="Ester.toggleHeat()" disabled>🔥 Chauffer à reflux</button>
+            <button class="btn btn-reset" onclick="Ester.reset()">↺ Réinitialiser</button>
+          </div>
+          <div class="log" id="esterLog"></div>
+          <div class="note">L'ester formé (odeur fruitée) est peu soluble dans l'eau : il surnage au-dessus de la phase aqueuse une fois la réaction terminée.</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<footer>Simulation pédagogique — usage en classe de chimie (lycée). Les couleurs et durées sont simplifiées à des fins d'apprentissage.</footer>
+  <!-- ======================= HALIDES ======================= -->
+  <section id="view-halides" class="view">
+    <div class="chapter-header"><h2>💧 Les dérivés halogénés</h2><span class="subtitle">Substitution basique puis identification au nitrate d'argent</span></div>
+    <div class="lab-layout">
+      <div class="panel">
+        <h3 class="ptitle">🎛️ Choisir l'halogénoalcane</h3>
+        <div class="field">
+          <label>Halogène (X)</label>
+          <select id="halideChoice" onchange="Halide.updateName()">
+            <option value="Cl">Chlore — chloroéthane</option>
+            <option value="Br" selected>Brome — bromoéthane</option>
+            <option value="I">Iode — iodoéthane</option>
+          </select>
+        </div>
+        <div class="note" id="halideName">C₂H₅Br</div>
+        <div class="btn-row" style="margin-top:14px;">
+          <button class="btn btn-heat" onclick="Halide.substitute()" id="halideSubBtn">🔥 Chauffer avec NaOH</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="Halide.testSilver()" id="halideAgBtn" disabled>➕ Tester au AgNO₃</button>
+          <button class="btn btn-reset" onclick="Halide.reset()">↺ Réinitialiser</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="workbench" style="min-height:260px;">
+          <div class="workbench-title">Paillasse — Substitution</div>
+          <div class="tt-rack">
+            <div class="tt-item">
+              <div class="test-tube"><div class="tt-liquid" id="haloTube" style="height:55%;background:rgba(226,232,240,0.45);"></div></div>
+              <div class="name" id="haloTubeName">R-X + NaOH</div>
+              <div class="tt-result" id="haloSubResult"></div>
+            </div>
+            <div class="tt-item">
+              <div class="test-tube"><div class="tt-liquid" id="agTube" style="height:0%;background:#fff;"></div></div>
+              <div class="name">+ AgNO₃</div>
+              <div class="tt-result" id="agResult"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3 class="ptitle">⚗️ Équations</h3>
+        <div class="equation" id="haloEquation" style="flex-direction:column;align-items:flex-start;gap:4px;">
+          <span>Substitution : R-X + HO⁻ → R-OH + X⁻ (Δ)</span>
+          <span>Identification : X⁻ + Ag⁺ → AgX(s) ↓</span>
+        </div>
+        <h3 class="ptitle">🖊️ Journal</h3>
+        <div class="log" id="haloLog"></div>
+        <div class="note">Couleur des précipités : AgCl blanc (noircit à la lumière), AgBr crème/jaune pâle, AgI jaune.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= NOMENCLATURE ======================= -->
+  <section id="view-nomenclature" class="view">
+    <div class="chapter-header"><h2>📖 Nomenclature organique</h2><span class="subtitle">Fiche de référence + quiz d'entraînement</span></div>
+    <div class="panel" style="margin-bottom:18px;">
+      <div class="ref-grid">
+        <div class="ref-card"><h4>Alcanes — CₙH₂ₙ₊₂</h4><ul><li>Suffixe <b>-ane</b></li><li>Chaîne saturée</li><li>Ex : CH₄ méthane, C₄H₁₀ butane</li></ul></div>
+        <div class="ref-card"><h4>Alcènes — CₙH₂ₙ</h4><ul><li>Suffixe <b>-ène</b></li><li>Une liaison double C=C</li><li>Indice de position si besoin</li></ul></div>
+        <div class="ref-card"><h4>Alcynes — CₙH₂ₙ₋₂</h4><ul><li>Suffixe <b>-yne</b></li><li>Une liaison triple C≡C</li></ul></div>
+        <div class="ref-card"><h4>Alcools — R-OH</h4><ul><li>Suffixe <b>-ol</b></li><li>Classes I, II, III selon le carbone fonctionnel</li></ul></div>
+        <div class="ref-card"><h4>Dérivés halogénés — R-X</h4><ul><li>Préfixe <b>halogéno-</b></li><li>X = F, Cl, Br, I</li></ul></div>
+        <div class="ref-card"><h4>Acides carboxyliques — R-COOH</h4><ul><li>Suffixe <b>-oïque</b></li><li>Ex : acide éthanoïque</li></ul></div>
+        <div class="ref-card"><h4>Esters — R-COO-R'</h4><ul><li><b>-oate de ...-yle</b></li><li>Ex : éthanoate d'éthyle</li></ul></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3 class="ptitle">🧠 Quiz d'entraînement</h3>
+      <div class="quiz-box">
+        <div class="quiz-progress" id="quizProgress">Question 1 / 8 — Score : 0</div>
+        <div class="quiz-formula" id="quizFormula">…</div>
+        <div class="quiz-choices" id="quizChoices"></div>
+        <div class="quiz-feedback" id="quizFeedback"></div>
+        <div class="btn-row" style="justify-content:center;">
+          <button class="btn btn-teal" id="quizNextBtn" onclick="Quiz.next()" style="display:none;">Suivant →</button>
+          <button class="btn btn-reset" onclick="Quiz.restart()">↺ Recommencer le quiz</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>Simulation pédagogique — usage en classe de chimie (Première C, programme APC Cameroun). Couleurs, durées et certains mécanismes sont simplifiés à des fins d'apprentissage.</footer>
 
 <script>
+/* ============ NAVIGATION ============ */
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('homeBtn').classList.toggle('show', id!=='view-home');
+  window.scrollTo(0,0);
+}
+
+/* ============ SHARED HELPERS ============ */
+function $(id){ return document.getElementById(id); }
+function logTo(elId, msg, cls){
+  const el = $(elId);
+  const p = document.createElement('p');
+  if(cls) p.className = cls;
+  p.textContent = '» ' + msg;
+  el.appendChild(p);
+  el.scrollTop = el.scrollHeight;
+}
+function createFlaskController(prefix){
+  const liquidRect = $(prefix+'LiquidRect');
+  const bubbleLayer = $(prefix+'BubbleLayer');
+  const maxHeight = 250;
+  return {
+    setLiquid(levelPercent, color){
+      const h = Math.max(0,Math.min(levelPercent,100))/100 * maxHeight;
+      const y = 270 - h;
+      liquidRect.style.height = h + 'px';
+      liquidRect.style.y = y + 'px';
+      if(color) liquidRect.style.fill = color;
+    },
+    spawnBubbles(count){
+      for(let i=0;i<count;i++){
+        setTimeout(()=>{
+          const b = document.createElement('div');
+          b.className = 'bubble';
+          b.style.left = (38 + Math.random()*24) + '%';
+          b.style.bottom = (20 + Math.random()*20) + '%';
+          bubbleLayer.appendChild(b);
+          setTimeout(()=>b.remove(), 1700);
+        }, i*120);
+      }
+    },
+    spawnVapor(count){
+      for(let i=0;i<count;i++){
+        setTimeout(()=>{
+          const v = document.createElement('div');
+          v.className = 'vapor';
+          v.style.top = (8 + Math.random()*10) + '%';
+          bubbleLayer.appendChild(v);
+          setTimeout(()=>v.remove(), 2300);
+        }, i*260);
+      }
+    }
+  };
+}
+
+/* ============ MODULE: CINETIQUE ============ */
+const Kin = (function(){
+  const canvas = $('kinChart');
+  const ctx = canvas.getContext('2d');
+  const TMAX = 200, VMAX = 60;
+  let points = [], prevPoints = [], timer = null;
+
+  function toXY(t,v){
+    const marginL=38, marginB=22, marginT=10, marginR=10;
+    const plotW = canvas.width - marginL - marginR;
+    const plotH = canvas.height - marginT - marginB;
+    return [marginL + (t/TMAX)*plotW, canvas.height - marginB - (v/VMAX)*plotH];
+  }
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth=1;
+    ctx.beginPath();
+    const [ox,oy] = toXY(0,0);
+    const [xEnd] = toXY(TMAX,0);
+    const [,yTop] = toXY(0,VMAX);
+    ctx.moveTo(ox,yTop); ctx.lineTo(ox,oy); ctx.lineTo(xEnd,oy);
+    ctx.stroke();
+    ctx.fillStyle = '#6b7280'; ctx.font='9px sans-serif';
+    ctx.fillText('V (mL)', ox-30, yTop+4);
+    ctx.fillText('t (s)', xEnd-14, oy+14);
+
+    if(prevPoints.length>1){
+      ctx.strokeStyle = '#cbd5e1'; ctx.setLineDash([4,3]); ctx.lineWidth=2;
+      ctx.beginPath();
+      prevPoints.forEach(([t,v],i)=>{ const [x,y]=toXY(t,v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+      ctx.stroke(); ctx.setLineDash([]);
+    }
+    if(points.length>1){
+      ctx.strokeStyle = '#f97316'; ctx.lineWidth=2.5;
+      ctx.beginPath();
+      points.forEach(([t,v],i)=>{ const [x,y]=toXY(t,v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+      ctx.stroke();
+      const [lx,ly] = toXY(...points[points.length-1]);
+      ctx.fillStyle = '#dc2626';
+      ctx.beginPath(); ctx.arc(lx,ly,3.5,0,7); ctx.fill();
+    }
+  }
+  function factors(){
+    const conc = parseFloat($('kinConc').value);
+    const temp = parseFloat($('kinTemp').value);
+    const cat = $('kinCatalyst').checked;
+    const concFactor = conc===0.5?0.6:(conc===1?1.0:1.8);
+    const tempFactor = temp===20?1.0:(temp===40?2.2:4.5);
+    const catFactor = cat?1.8:1.0;
+    return 0.015*concFactor*tempFactor*catFactor;
+  }
+  function start(){
+    clearInterval(timer);
+    if(points.length>1) prevPoints = points;
+    points = [];
+    $('kinStartBtn').disabled = true;
+    const k = factors();
+    const N = 80, dt = TMAX/N;
+    let i = 0;
+    logTo('kinLog', 'Départ : [HCl]='+$('kinConc').value+' mol/L, T='+$('kinTemp').value+'°C, catalyseur='+($('kinCatalyst').checked?'oui':'non')+'.');
+    timer = setInterval(()=>{
+      i++;
+      const t = i*dt;
+      const v = VMAX*(1-Math.exp(-k*t));
+      points.push([t,v]);
+      draw();
+      $('kinGasFill').style.height = (v/VMAX*100)+'%';
+      $('kinReadout').textContent = 'V ≈ '+v.toFixed(1)+' mL — t ≈ '+t.toFixed(0)+' s';
+      if(i>=N || v>=VMAX*0.995){
+        clearInterval(timer);
+        $('kinStartBtn').disabled = false;
+        const rate = (v/t).toFixed(2);
+        logTo('kinLog', 'Réaction quasi terminée : vitesse moyenne ≈ '+rate+' mL/s.', 'ok');
+      }
+    }, 150);
+  }
+  function reset(){
+    clearInterval(timer);
+    points = []; prevPoints = [];
+    draw();
+    $('kinGasFill').style.height='0%';
+    $('kinReadout').textContent='V = 0 mL — t = 0 s';
+    $('kinStartBtn').disabled = false;
+    $('kinLog').innerHTML='';
+    logTo('kinLog','Montage réinitialisé.');
+  }
+  draw();
+  return { start, reset };
+})();
+
+/* ============ MODULE: REDOX (Pile Daniell) ============ */
+const Redox = (function(){
+  let running = false, depositH = 0, znWidth = 24, timer=null;
+  function toggle(){
+    running = !running;
+    const btn = $('redoxBtn');
+    if(running){
+      btn.textContent = '⏸ Ouvrir le circuit';
+      $('voltmeter').textContent = '1,10 V';
+      logTo('redoxLog','Circuit fermé : le courant circule, les électrons se déplacent du zinc vers le cuivre dans le fil.','ok');
+      timer = setInterval(tick, 700);
+    } else {
+      btn.textContent = '⚡ Fermer le circuit';
+      $('voltmeter').textContent = '0,00 V';
+      clearInterval(timer);
+      logTo('redoxLog','Circuit ouvert : plus de passage de courant.','warn');
+    }
+  }
+  function tick(){
+    // electron animation along the wire
+    const e = document.createElement('div');
+    e.className='electron';
+    e.style.left='38px';
+    $('redoxWorkbench').querySelector('.wire').appendChild(e);
+    e.animate([{left:'38px'},{left:'82%'}],{duration:900,easing:'linear'});
+    setTimeout(()=>e.remove(),900);
+
+    // Zn corrosion
+    znWidth = Math.max(8, znWidth-0.6);
+    $('znElectrode').style.width = znWidth+'px';
+    if(Math.random()<0.6){
+      const ion=document.createElement('div');
+      ion.className='ion-float'; ion.textContent='Zn²⁺';
+      ion.style.left=(30+Math.random()*40)+'%'; ion.style.top='40%';
+      document.querySelector('#redoxWorkbench .cell-beaker').appendChild(ion);
+      setTimeout(()=>ion.remove(),2200);
+    }
+    // Cu deposit growth
+    depositH = Math.min(60, depositH+2.5);
+    $('cuDeposit').style.height = depositH+'%';
+
+    if(depositH>=59){
+      clearInterval(timer);
+      logTo('redoxLog','Dépôt de cuivre maximal atteint sur la cathode — la réaction ralentit fortement.','ok');
+    }
+  }
+  function reset(){
+    running=false; clearInterval(timer);
+    depositH=0; znWidth=24;
+    $('znElectrode').style.width='24px';
+    $('cuDeposit').style.height='0%';
+    $('voltmeter').textContent='0,00 V';
+    $('redoxBtn').textContent='⚡ Fermer le circuit';
+    $('redoxLog').innerHTML='';
+    logTo('redoxLog','Pile réinitialisée.');
+  }
+  return { toggle, reset };
+})();
+
+/* ============ MODULE: ALKANES (combustion) ============ */
+const Alkane = (function(){
+  function ignite(){
+    const mode = $('alkaneMode').value;
+    const flame = $('alkaneFlame');
+    flame.classList.add('lit');
+    flame.classList.toggle('sooty', mode==='incomplete');
+    $('limewaterLiquid').style.background = 'rgba(255,255,255,0.9)';
+    $('limewaterResult').textContent = "L'eau de chaux se trouble (blanchit)";
+    if(mode==='complete'){
+      $('alkaneEquation').textContent = 'C₄H₁₀ + 13/2 O₂ → 4 CO₂ + 5 H₂O';
+      logTo('alkaneLog','Combustion complète : flamme bleue, pas de suie. CO₂ et H₂O uniquement.','ok');
+      $('sootPlate').style.background='rgba(255,255,255,0.3)';
+    } else {
+      $('alkaneEquation').textContent = 'C₄H₁₀ + O₂ (limité) → CO₂ + CO + C(suie) + H₂O';
+      logTo('alkaneLog','Combustion incomplète : flamme jaune fuligineuse, dépôt de suie et formation de CO (toxique) en plus du CO₂.','warn');
+      setTimeout(()=>{ $('sootPlate').style.background='radial-gradient(circle,#111 40%,rgba(17,17,17,.2) 100%)'; },600);
+    }
+  }
+  function reset(){
+    $('alkaneFlame').classList.remove('lit','sooty');
+    $('limewaterLiquid').style.background='rgba(255,255,255,0.25)';
+    $('limewaterResult').textContent='';
+    $('sootPlate').style.background='rgba(255,255,255,0.3)';
+    $('alkaneEquation').textContent='CH₄ (ou C₄H₁₀) + O₂ → CO₂ + H₂O';
+    $('alkaneLog').innerHTML='';
+    logTo('alkaneLog','Montage réinitialisé.');
+  }
+  return { ignite, reset };
+})();
+
+/* ============ MODULE: ALKENE TESTS (bromine / KMnO4) ============ */
+const AlkeneTests = (function(){
+  function testBromine(){
+    $('brWaterLiquid').style.background = 'rgba(255,255,255,0.15)';
+    $('brWaterResult').textContent = '✅ Décoloration : C=C présente';
+  }
+  function testKMnO4(){
+    $('kmnoLiquid').style.background = '#78350f';
+    $('kmnoResult').textContent = '✅ Décoloration (dépôt brun MnO₂)';
+  }
+  return { testBromine, testKMnO4 };
+})();
+
+/* ============ MODULE: ALKENE HYDRATION ============ */
+const Alkene = (function(){
+  const flask = createFlaskController('alkene');
   const state = { water:false, acid:false, alkene:false, heating:false, done:false, progress:0 };
-  let heatInterval = null;
-
-  const liquidRect = document.getElementById('liquidRect');
-  const flaskLabel = document.getElementById('flaskLabel');
-  const bubbleLayer = document.getElementById('bubbleLayer');
-  const flame = document.getElementById('flame');
-  const heatBtn = document.getElementById('heatBtn');
-  const progressFill = document.getElementById('progressFill');
-  const progressText = document.getElementById('progressText');
-  const logEl = document.getElementById('log');
-  const equationEl = document.getElementById('equation');
-
-  function log(msg, type){
-    const p = document.createElement('p');
-    if(type) p.className = type;
-    p.textContent = '» ' + msg;
-    logEl.appendChild(p);
-    logEl.scrollTop = logEl.scrollHeight;
-  }
-
-  function onDragStart(e, id){
-    e.dataTransfer.setData('text/plain', id);
-  }
-  function onDrop(e){
-    e.preventDefault();
-    const id = e.dataTransfer.getData('text/plain');
-    if(id) addReagent(id);
-  }
-
-  function setLiquid(levelPercent, color){
-    const maxHeight = 250; // from y=270 up to y=20
-    const h = Math.min(levelPercent,100)/100 * maxHeight;
-    const y = 270 - h;
-    liquidRect.style.height = h + 'px';
-    liquidRect.style.y = y + 'px';
-    if(color) liquidRect.style.fill = color;
-  }
-
-  function spawnBubbles(count, colorClass){
-    for(let i=0;i<count;i++){
-      setTimeout(()=>{
-        const b = document.createElement('div');
-        b.className = 'bubble';
-        const leftPct = 38 + Math.random()*24;
-        b.style.left = leftPct + '%';
-        b.style.bottom = (20 + Math.random()*20) + '%';
-        bubbleLayer.appendChild(b);
-        setTimeout(()=>b.remove(), 1700);
-      }, i*120);
-    }
-  }
-
-  function spawnVapor(count){
-    for(let i=0;i<count;i++){
-      setTimeout(()=>{
-        const v = document.createElement('div');
-        v.className = 'vapor';
-        v.style.top = (8 + Math.random()*10) + '%';
-        bubbleLayer.appendChild(v);
-        setTimeout(()=>v.remove(), 2300);
-      }, i*260);
-    }
-  }
-
+  let timer=null;
   function updateChecklist(){
-    document.querySelectorAll('#checklist li').forEach(li=>{
-      const step = li.dataset.step;
-      let isDone = false;
-      if(step==='water') isDone = state.water;
-      if(step==='acid') isDone = state.acid;
-      if(step==='alkene') isDone = state.alkene;
-      if(step==='heat') isDone = state.heating || state.done;
-      if(step==='done') isDone = state.done;
-      li.classList.toggle('done', isDone);
+    document.querySelectorAll('#alkeneChecklist li').forEach(li=>{
+      const step = li.dataset.step; let d=false;
+      if(step==='water') d=state.water;
+      if(step==='acid') d=state.acid;
+      if(step==='alkene') d=state.alkene;
+      if(step==='heat') d=state.heating||state.done;
+      if(step==='done') d=state.done;
+      li.classList.toggle('done', d);
     });
   }
-
-  function updateFlaskVisual(){
+  function updateVisual(){
     if(state.done){
-      flaskLabel.textContent = 'Éthanol obtenu — C₂H₅OH ✔';
-      flaskLabel.classList.add('success');
-      setLiquid(60, 'var(--ethanol)');
+      $('alkeneFlaskLabel').textContent='Éthanol obtenu — C₂H₅OH ✔';
+      $('alkeneFlaskLabel').classList.add('success');
+      flask.setLiquid(60,'var(--ethanol)');
       return;
     }
-    let level = 0;
-    let color = 'var(--water)';
-    let labelParts = [];
-    if(state.water){ level += 35; labelParts.push('eau'); }
-    if(state.acid){ level += 6; color = 'var(--acidmix)'; labelParts.push('H₂SO₄'); }
-    if(state.alkene){ labelParts.push('C₂H₄ (barbote)'); }
-    setLiquid(level, color);
-    flaskLabel.textContent = labelParts.length ? 'Mélange : ' + labelParts.join(' + ') : 'Ballon vide';
-    flaskLabel.classList.remove('success');
+    let level=0, color='var(--water)', parts=[];
+    if(state.water){ level+=35; parts.push('eau'); }
+    if(state.acid){ level+=6; color='var(--acidmix)'; parts.push('H₂SO₄'); }
+    if(state.alkene){ parts.push('C₂H₄ (barbote)'); }
+    flask.setLiquid(level,color);
+    $('alkeneFlaskLabel').textContent = parts.length? 'Mélange : '+parts.join(' + ') : 'Ballon vide';
+    $('alkeneFlaskLabel').classList.remove('success');
   }
-
-  function checkHeatAvailability(){
-    heatBtn.disabled = !(state.water && state.acid && state.alkene) || state.done;
-    if(!heatBtn.disabled){
-      progressText.textContent = 'Prêt à chauffer — clique sur "Chauffer" !';
-    }
+  function checkHeat(){
+    $('alkeneHeatBtn').disabled = !(state.water&&state.acid&&state.alkene) || state.done;
   }
-
   function addReagent(id){
-    if(state.done){
-      log("La réaction est terminée, réinitialise le ballon pour recommencer.", 'warn');
-      return;
-    }
-    if(state[id]){
-      log("Ce réactif a déjà été ajouté.", 'warn');
-      return;
-    }
-    state[id] = true;
-
-    if(id === 'water'){
-      log("Ajout d'eau distillée (H₂O) dans le ballon.");
-    } else if(id === 'acid'){
-      log("Ajout de quelques gouttes d'acide sulfurique concentré — attention, réaction exothermique !", 'warn');
-    } else if(id === 'alkene'){
-      log("Barbotage du gaz éthylène (CH₂=CH₂) dans le mélange.");
-      spawnBubbles(10);
-    }
-
-    updateFlaskVisual();
-    updateChecklist();
-    checkHeatAvailability();
-
-    if(!state.water) progressText.textContent = "Ajoute l'eau distillée…";
-    else if(!state.acid) progressText.textContent = "Ajoute le catalyseur (H₂SO₄)…";
-    else if(!state.alkene) progressText.textContent = "Fais buller l'éthylène…";
+    if(state.done){ logTo('alkeneLog','Réaction terminée, réinitialise pour recommencer.','warn'); return; }
+    if(state[id]){ logTo('alkeneLog','Déjà ajouté.','warn'); return; }
+    state[id]=true;
+    if(id==='water') logTo('alkeneLog',"Ajout d'eau distillée.");
+    if(id==='acid') logTo('alkeneLog',"Ajout du catalyseur H₂SO₄.",'warn');
+    if(id==='alkene'){ logTo('alkeneLog',"Barbotage de l'éthylène."); flask.spawnBubbles(10); }
+    updateVisual(); updateChecklist(); checkHeat();
   }
-
   function toggleHeat(){
-    if(state.heating || state.done) return;
-    state.heating = true;
-    heatBtn.disabled = true;
-    heatBtn.textContent = '🔥 Chauffage en cours…';
-    flame.classList.add('lit');
-    log("Chauffage du mélange réactionnel (catalyse acide à chaud)…");
+    if(state.heating||state.done) return;
+    state.heating=true; $('alkeneHeatBtn').disabled=true; $('alkeneHeatBtn').textContent='🔥 Chauffage…';
+    $('alkeneFlame').classList.add('lit');
+    logTo('alkeneLog','Chauffage du mélange…');
     updateChecklist();
-
-    state.progress = 0;
-    heatInterval = setInterval(()=>{
-      state.progress += 4;
-      progressFill.style.width = Math.min(state.progress,100) + '%';
-      progressText.textContent = "Avancement de la réaction : " + Math.min(state.progress,100) + "%";
-
-      if(state.progress % 16 === 0){
-        spawnBubbles(4);
+    state.progress=0;
+    timer=setInterval(()=>{
+      state.progress+=4;
+      $('alkeneProgressFill').style.width=Math.min(state.progress,100)+'%';
+      $('alkeneProgressText').textContent='Avancement : '+Math.min(state.progress,100)+'%';
+      if(state.progress%16===0) flask.spawnBubbles(4);
+      if(state.progress>=40 && state.progress<44) flask.spawnVapor(6);
+      if(state.progress>=100){
+        clearInterval(timer);
+        state.heating=false; state.done=true;
+        $('alkeneFlame').classList.remove('lit');
+        $('alkeneHeatBtn').textContent='🔥 Chauffer';
+        $('alkeneProgressText').textContent='Réaction terminée !';
+        updateVisual(); updateChecklist();
+        document.getElementById('alkeneEquation').classList.add('highlight');
+        logTo('alkeneLog',"Éthanol formé (CH₃-CH₂-OH).",'ok');
       }
-      if(state.progress >= 40 && state.progress < 44){
-        spawnVapor(6);
-        log("Formation progressive d'éthanol observée (odeur caractéristique).");
-      }
-
-      if(state.progress >= 100){
-        clearInterval(heatInterval);
-        finishReaction();
-      }
-    }, 160);
+    },160);
   }
-
-  function finishReaction(){
-    state.heating = false;
-    state.done = true;
-    flame.classList.remove('lit');
-    heatBtn.textContent = '🔥 Chauffer';
-    progressText.textContent = "Réaction terminée !";
-    updateFlaskVisual();
+  function reset(){
+    clearInterval(timer);
+    state.water=false; state.acid=false; state.alkene=false; state.heating=false; state.done=false; state.progress=0;
+    $('alkeneFlame').classList.remove('lit');
+    $('alkeneHeatBtn').disabled=true; $('alkeneHeatBtn').textContent='🔥 Chauffer';
+    $('alkeneProgressFill').style.width='0%'; $('alkeneProgressText').textContent='En attente des réactifs…';
+    document.getElementById('alkeneEquation').classList.remove('highlight');
+    $('alkeneBubbleLayer').innerHTML='';
+    flask.setLiquid(0,'var(--water)');
+    $('alkeneFlaskLabel').textContent='Ballon vide'; $('alkeneFlaskLabel').classList.remove('success');
     updateChecklist();
-    equationEl.classList.add('highlight');
-    log("Réaction terminée : l'éthylène s'est hydraté en éthanol (CH₃-CH₂-OH).", 'ok');
-    log("Bilan : CH₂=CH₂ + H₂O  →(H₂SO₄, Δ)→  CH₃-CH₂-OH", 'ok');
+    $('alkeneLog').innerHTML='';
+    logTo('alkeneLog','Ballon rincé, prêt pour une nouvelle expérience.');
   }
-
-  function resetLab(){
-    clearInterval(heatInterval);
-    state.water = false; state.acid = false; state.alkene = false;
-    state.heating = false; state.done = false; state.progress = 0;
-    flame.classList.remove('lit');
-    heatBtn.disabled = true;
-    heatBtn.textContent = '🔥 Chauffer';
-    progressFill.style.width = '0%';
-    progressText.textContent = 'En attente des réactifs…';
-    equationEl.classList.remove('highlight');
-    bubbleLayer.innerHTML = '';
-    setLiquid(0, 'var(--water)');
-    flaskLabel.textContent = 'Ballon vide';
-    flaskLabel.classList.remove('success');
-    updateChecklist();
-    logEl.innerHTML = '';
-    log("Ballon rincé et prêt pour une nouvelle expérience.");
-  }
-
-  // init
   updateChecklist();
-  log("Bienvenue au laboratoire virtuel. Ajoute les réactifs dans le ballon pour démarrer l'expérience.");
+  return { addReagent, toggleHeat, reset };
+})();
+
+/* ============ MODULE: ALCOHOLS ============ */
+const Alcohol = (function(){
+  function testSodium(n){
+    const tube = $('naTube'+n);
+    tube.style.background = 'rgba(203,213,225,0.7)';
+    $('naResult'+n).textContent = '💨 Effervescence (H₂)';
+  }
+  function testOxidation(n){
+    const tube = $('oxTube'+n);
+    const res = $('oxResult'+n);
+    if(n===3){
+      res.textContent = '❌ Pas de réaction (reste orange)';
+    } else {
+      tube.style.background = '#16a34a';
+      res.textContent = n===1? '✅ Vire au vert → acide éthanoïque' : '✅ Vire au vert → propanone';
+    }
+  }
+  return { testSodium, testOxidation };
+})();
+
+/* ============ MODULE: ESTERIFICATION ============ */
+const Ester = (function(){
+  const flask = createFlaskController('ester');
+  const layerRect = $('esterLayerRect');
+  const state = { acid:false, alcohol:false, heating:false, done:false, progress:0 };
+  let timer=null;
+  function updateVisual(){
+    if(state.done){
+      flask.setLiquid(35,'rgba(96,165,250,.75)');
+      layerRect.style.height='55px'; layerRect.style.y='127.5px';
+      $('esterFlaskLabel').textContent='Éthanoate d\'éthyle formé ✔ (odeur fruitée)';
+      $('esterFlaskLabel').classList.add('success');
+      return;
+    }
+    let level=0, parts=[];
+    if(state.acid){ level+=25; parts.push('CH₃COOH'); }
+    if(state.alcohol){ level+=25; parts.push('C₂H₅OH + H₂SO₄'); }
+    flask.setLiquid(level,'rgba(250,240,200,.6)');
+    $('esterFlaskLabel').textContent = parts.length? 'Mélange : '+parts.join(' + ') : 'Ballon vide';
+  }
+  function addReagent(id){
+    if(state.done) return;
+    if(state[id]) { logTo('esterLog','Déjà ajouté.','warn'); return; }
+    state[id]=true;
+    logTo('esterLog', id==='acid'?"Ajout de l'acide éthanoïque.":"Ajout de l'éthanol et du catalyseur H₂SO₄.");
+    updateVisual();
+    $('esterHeatBtn').disabled = !(state.acid&&state.alcohol);
+  }
+  function toggleHeat(){
+    if(state.heating||state.done) return;
+    state.heating=true; $('esterHeatBtn').disabled=true; $('esterHeatBtn').textContent='🔥 Reflux en cours…';
+    $('esterFlame').classList.add('lit');
+    logTo('esterLog','Chauffage à reflux (réaction lente et limitée)…');
+    state.progress=0;
+    timer=setInterval(()=>{
+      state.progress+=3;
+      $('esterProgressFill').style.width=Math.min(state.progress,100)+'%';
+      $('esterProgressText').textContent='Avancement : '+Math.min(state.progress,100)+'%';
+      if(state.progress%20===0) flask.spawnBubbles(3);
+      if(state.progress>=100){
+        clearInterval(timer);
+        state.heating=false; state.done=true;
+        $('esterFlame').classList.remove('lit');
+        $('esterHeatBtn').textContent='🔥 Chauffer à reflux';
+        $('esterProgressText').textContent='Équilibre atteint !';
+        updateVisual();
+        logTo('esterLog',"Ester formé : deux phases visibles (ester en haut, phase aqueuse en bas).",'ok');
+      }
+    },170);
+  }
+  function reset(){
+    clearInterval(timer);
+    state.acid=false; state.alcohol=false; state.heating=false; state.done=false; state.progress=0;
+    $('esterFlame').classList.remove('lit');
+    $('esterHeatBtn').disabled=true; $('esterHeatBtn').textContent='🔥 Chauffer à reflux';
+    $('esterProgressFill').style.width='0%'; $('esterProgressText').textContent='En attente des réactifs…';
+    $('esterBubbleLayer').innerHTML='';
+    layerRect.style.height='0px';
+    flask.setLiquid(0,'var(--water)');
+    $('esterFlaskLabel').textContent='Ballon vide'; $('esterFlaskLabel').classList.remove('success');
+    $('esterLog').innerHTML='';
+    logTo('esterLog','Ballon rincé.');
+  }
+  return { addReagent, toggleHeat, reset };
+})();
+
+/* ============ MODULE: HALIDES ============ */
+const Halide = (function(){
+  const names = { Cl:'chloroéthane (C₂H₅Cl)', Br:'bromoéthane (C₂H₅Br)', I:'iodoéthane (C₂H₅I)' };
+  const precipitates = { Cl:{color:'#f1f5f9', txt:'Précipité blanc (AgCl) — noircit à la lumière'},
+                          Br:{color:'#fef3c7', txt:'Précipité crème/jaune pâle (AgBr)'},
+                          I:{color:'#fde047', txt:'Précipité jaune (AgI)'} };
+  let substituted=false;
+  function updateName(){
+    const x=$('halideChoice').value;
+    $('halideName').textContent = names[x];
+    $('haloTubeName').textContent = names[x] + ' + NaOH';
+  }
+  function substitute(){
+    substituted=true;
+    $('haloTube').style.background='rgba(226,232,240,0.7)';
+    $('haloSubResult').textContent='✅ Substitution réalisée → alcool + X⁻';
+    $('halideAgBtn').disabled=false;
+    logTo('haloLog','Chauffage avec NaOH : substitution R-X → R-OH, libération de X⁻ en solution.','ok');
+  }
+  function testSilver(){
+    if(!substituted) return;
+    const x=$('halideChoice').value;
+    const p = precipitates[x];
+    $('agTube').style.height='55%';
+    $('agTube').style.background = p.color;
+    $('agResult').textContent = p.txt;
+    logTo('haloLog', 'Test au AgNO₃ : '+p.txt+'.', 'ok');
+  }
+  function reset(){
+    substituted=false;
+    $('haloTube').style.background='rgba(226,232,240,0.45)';
+    $('haloSubResult').textContent='';
+    $('agTube').style.height='0%';
+    $('agResult').textContent='';
+    $('halideAgBtn').disabled=true;
+    $('haloLog').innerHTML='';
+    logTo('haloLog','Montage réinitialisé.');
+    updateName();
+  }
+  updateName();
+  return { updateName, substitute, testSilver, reset };
+})();
+
+/* ============ MODULE: NOMENCLATURE QUIZ ============ */
+const Quiz = (function(){
+  const questions = [
+    { f:'CH₃-CH₂-CH₂-CH₃', choices:['Butane','Butène','Propane','Méthylpropane'], a:0 },
+    { f:'CH₂=CH-CH₃', choices:['Propane','Propène','Propyne','Propanol'], a:1 },
+    { f:'CH₃-CH₂-OH', choices:['Éthanal','Acide éthanoïque','Éthanol','Éthanoate d\'éthyle'], a:2 },
+    { f:'CH≡C-CH₃', choices:['Propyne','Propène','Propane','Propanal'], a:0 },
+    { f:'CH₃-CH₂-Br', choices:['Bromométhane','Bromoéthane','Éthanol bromé','Dibromoéthane'], a:1 },
+    { f:'CH₃-COOH', choices:['Éthanol','Éthanal','Acide éthanoïque','Éthanoate de méthyle'], a:2 },
+    { f:'CH₃-CH(OH)-CH₃', choices:['Propan-1-ol','Propan-2-ol','Propanone','Propanal'], a:1 },
+    { f:'CH₃-COO-CH₂-CH₃', choices:['Acide propanoïque','Propan-1-ol','Éthanoate d\'éthyle','Éthanoate de propyle'], a:2 }
+  ];
+  let order = [...questions.keys()];
+  let idx=0, score=0, answered=false;
+  function render(){
+    const q = questions[order[idx]];
+    $('quizProgress').textContent = 'Question '+(idx+1)+' / '+questions.length+' — Score : '+score;
+    $('quizFormula').textContent = q.f;
+    $('quizFeedback').textContent='';
+    $('quizNextBtn').style.display='none';
+    const box = $('quizChoices'); box.innerHTML='';
+    q.choices.forEach((c,i)=>{
+      const b=document.createElement('button');
+      b.textContent=c;
+      b.onclick=()=>select(i,b);
+      box.appendChild(b);
+    });
+    answered=false;
+  }
+  function select(i,btn){
+    if(answered) return;
+    answered=true;
+    const q = questions[order[idx]];
+    const buttons = $('quizChoices').querySelectorAll('button');
+    if(i===q.a){
+      btn.classList.add('correct');
+      score++;
+      $('quizFeedback').textContent='✅ Bonne réponse !';
+    } else {
+      btn.classList.add('wrong');
+      buttons[q.a].classList.add('correct');
+      $('quizFeedback').textContent='❌ Raté ! Bonne réponse : '+q.choices[q.a];
+    }
+    $('quizNextBtn').style.display = (idx<questions.length-1) ? 'inline-flex' : 'none';
+    if(idx===questions.length-1){
+      $('quizFeedback').textContent += '  —  Quiz terminé, score final : '+score+' / '+questions.length;
+    }
+    $('quizProgress').textContent = 'Question '+(idx+1)+' / '+questions.length+' — Score : '+score;
+  }
+  function next(){ idx++; render(); }
+  function restart(){ order=[...questions.keys()]; idx=0; score=0; render(); }
+  render();
+  return { next, restart };
+})();
 </script>
 
 </body>
